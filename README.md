@@ -27,6 +27,7 @@ int main(void) {
 }
 ```
 # 2. Вывод утилиты strace
+```
 execve("./main", ["./main"], 0x7ffc8fe2db40 /* 28 vars */) = 0
 brk(NULL)                               = 0x555b93bf0000
 arch_prctl(0x3001 /* ARCH_??? */, 0x7ffd1973d3e0) = -1 EINVAL (Invalid argument)
@@ -65,3 +66,4 @@ read(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 1
 close(3)                                = 0
 exit_group(0)                           = ?
 +++ exited with 0 +++
+```
