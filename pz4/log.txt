@@ -56,3 +56,26 @@ make[2]: *** [scripts/Makefile.build:297: /home/drivers/drivers/pz4/driver.o] Er
 make[1]: *** [Makefile:1930: /home/drivers/drivers/pz4] Error 2
 make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
 make: *** [Makefile:4: all] Error 2
+
+make -C /lib/modules/5.15.0-163-generic/build M=/home/drivers/drivers/pz4 modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+  CC [M]  /home/drivers/drivers/pz4/driver.o
+/home/drivers/drivers/pz4/driver.c: In function ‘init_module’:
+/home/drivers/drivers/pz4/driver.c:99:38: error: macro "class_create" requires 2 arguments, but only 1 given
+   99 |   my_class = class_create("pz4_class");
+      |                                      ^
+In file included from ./include/linux/device.h:31,
+                 from ./include/linux/cdev.h:8,
+                 from /home/drivers/drivers/pz4/driver.c:1:
+./include/linux/device/class.h:273: note: macro "class_create" defined here
+  273 | #define class_create(owner, name)               \
+      | 
+/home/drivers/drivers/pz4/driver.c:99:14: error: ‘class_create’ undeclared (first use in this function); did you mean ‘vfs_create’?
+   99 |   my_class = class_create("pz4_class");
+      |              ^~~~~~~~~~~~
+      |              vfs_create
+/home/drivers/drivers/pz4/driver.c:99:14: note: each undeclared identifier is reported only once for each function it appears in
+make[2]: *** [scripts/Makefile.build:297: /home/drivers/drivers/pz4/driver.o] Error 1
+make[1]: *** [Makefile:1930: /home/drivers/drivers/pz4] Error 2
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
+make: *** [Makefile:4: all] Error 2
