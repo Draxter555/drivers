@@ -57,3 +57,20 @@ make[2]: *** No rule to make target 'arch/x86/entry/syscalls/syscall_32.tbl', ne
 make[1]: *** [arch/x86/Makefile:217: archheaders] Error 2
 make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
 make: *** [Makefile:4: all] Error 2
+
+make: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+  CC [M]  /home/drivers/drivers/pz4/main.o
+make: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
+
+make: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+  CC [M]  /home/drivers/drivers/pz4/main.o
+/home/drivers/drivers/pz4/main.c:21:12: error: static declaration of ‘simple_open’ follows non-static declaration
+   21 | static int simple_open(struct inode *inode, struct file *file)
+      |            ^~~~~~~~~~~
+In file included from /home/drivers/drivers/pz4/main.c:2:
+./include/linux/fs.h:3464:12: note: previous declaration of ‘simple_open’ with type ‘int(struct inode *, struct file *)’
+ 3464 | extern int simple_open(struct inode *inode, struct file *file);
+      |            ^~~~~~~~~~~
+make[1]: *** [scripts/Makefile.build:297: /home/drivers/drivers/pz4/main.o] Error 1
+make: *** [Makefile:1930: /home/drivers/drivers/pz4] Error 2
+make: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
