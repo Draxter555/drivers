@@ -23,14 +23,19 @@ make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
 # 2. Вставить в ядро
 
 ```
-sudo insmod main.ko
-lsmod | grep main
+> sudo insmod main.ko
+> lsmod | grep main
 main                   16384  0
 
-dmesg | tail
+> dmesg | tail
 [ 7430.202688] Driver loaded, major=237
 ```
 
 # 3. Создать специальный файл устройства
+
+> sudo mknod main c 237 0
+> ls -l /dev | grep main
+crw-r--r--  1 root    root    237,   0 Dec 15 12:33 main
+
 
 # 4. Написать приложение для открытия специального файлового устройства
