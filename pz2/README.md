@@ -21,7 +21,7 @@ make[1]: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
   BTF [M] /home/drivers/drivers/pz2/main.ko
 make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
 ```
-# 2. Вставка модуля insmod, dmesg
+# 2. Вставка модуля insmod, lsmod, dmesg
 ```
 drivers@drivers:~drivers/pz2$ sudo insmod main.ko
 
