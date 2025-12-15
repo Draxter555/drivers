@@ -1,2 +1,13 @@
 
 main                   16384  0
+
+[   75.701364] loop6: detected capacity change from 0 to 8
+[ 1685.354727] Module loaded
+[ 2514.681954] Module removed
+[ 2597.099476] Module loaded
+[ 2600.234519] Module removed
+[ 2922.186945] Module loaded
+[ 3102.849632] Module removed
+[ 3555.721662] Module loaded
+[ 7427.262876] Module removed
+[ 7430.202688] Driver loaded, major=237
