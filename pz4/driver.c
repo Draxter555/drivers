@@ -1,120 +1,129 @@
-#include <linux/cdev.h>
-#include <linux/device.h>
-#include <linux/fs.h>
 #include <linux/module.h>
+#include <linux/fs.h>
 #include <linux/uaccess.h>
+#include <linux/cdev.h>
+#include <linux/ioctl.h>
+#include <linux/mutex.h>
+#include <linux/slab.h>
+#include <linux/device.h>
 
+#define DEVICE_NAME "pz4_dev"
 #define BUF_SIZE 256
 
-#define IOCTL_CLEAR _IO('q', 1)         // очистка буфера
-#define IOCTL_HASDATA _IOR('q', 2, int) // узнать, есть ли данные
+#define IOCTL_CLEAR _IO('q', 1)
+#define IOCTL_HASDATA _IOR('q', 2, int)
 
-static char gbuf[BUF_SIZE]; // глобальный буфер
-static int gbuf_len = 0;    // сколько данных в буфере
-
-static dev_t dev_num; // номер устройства
-static struct cdev my_cdev;
+static char *buffer;
+static int buf_len = 0;
+static struct cdev c_dev;
+static dev_t dev;
 static struct class *my_class;
+static DEFINE_MUTEX(buf_mutex);
 
-// open
-static int drv_open(struct inode *inode, struct file *file) {
-  pr_info("устройство открыто\n");
-  return 0;
+static int pz4_open(struct inode *inode, struct file *file) { return 0; }
+static int pz4_release(struct inode *inode, struct file *file) { return 0; }
+
+static ssize_t pz4_read(struct file *file, char __user *user_buf, size_t len, loff_t *offset)
+{
+    ssize_t ret = 0;
+    if (mutex_lock_interruptible(&buf_mutex)) return -ERESTARTSYS;
+    if (*offset >= buf_len) goto out;
+    if (len > buf_len - *offset) len = buf_len - *offset;
+    if (copy_to_user(user_buf, buffer + *offset, len)) ret = -EFAULT;
+    else { *offset += len; ret = len; }
+out:
+    mutex_unlock(&buf_mutex);
+    return ret;
 }
 
-// release
-static int drv_release(struct inode *inode, struct file *file) {
-  pr_info("устройство закрыто\n");
-  return 0;
+static ssize_t pz4_write(struct file *file, const char __user *user_buf, size_t len, loff_t *offset)
+{
+    ssize_t ret = 0;
+    if (len > BUF_SIZE) len = BUF_SIZE;
+    if (mutex_lock_interruptible(&buf_mutex)) return -ERESTARTSYS;
+    if (copy_from_user(buffer, user_buf, len)) ret = -EFAULT;
+    else { buf_len = len; ret = len; }
+    mutex_unlock(&buf_mutex);
+    return ret;
 }
 
-// read
-static ssize_t drv_read(struct file *file, char __user *buf, size_t size,
-                        loff_t *off) {
-  if (*off > 0)
+static long pz4_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+{
+    int tmp;
+    if (mutex_lock_interruptible(&buf_mutex)) return -ERESTARTSYS;
+    switch(cmd) {
+        case IOCTL_CLEAR:
+            buf_len = 0;
+            break;
+        case IOCTL_HASDATA:
+            tmp = (buf_len != 0);
+            if (copy_to_user((int __user *)arg, &tmp, sizeof(int))) {
+                mutex_unlock(&buf_mutex);
+                return -EFAULT;
+            }
+            break;
+        default:
+            mutex_unlock(&buf_mutex);
+            return -EINVAL;
+    }
+    mutex_unlock(&buf_mutex);
     return 0;
-
-  if (gbuf_len == 0)
-    return 0;
-
-  if (copy_to_user(buf, gbuf, gbuf_len))
-    return -EFAULT;
-
-  *off = gbuf_len;
-  return gbuf_len;
-}
-
-// write
-static ssize_t drv_write(struct file *file, const char __user *buf, size_t size,
-                         loff_t *off) {
-  if (size > BUF_SIZE)
-    size = BUF_SIZE;
-
-  if (copy_from_user(gbuf, buf, size))
-    return -EFAULT;
-
-  gbuf_len = size;
-  pr_info("записано %d байт\n", gbuf_len);
-  return size;
-}
-
-// ioctl
-static long drv_ioctl(struct file *file, unsigned int cmd, unsigned long arg) {
-  if (cmd == IOCTL_CLEAR) {
-    gbuf_len = 0;
-    pr_info("буфер очищен\n");
-    return 0;
-  }
-
-  if (cmd == IOCTL_HASDATA) {
-    int val = (gbuf_len > 0);
-    if (copy_to_user((int __user *)arg, &val, sizeof(int)))
-      return -EFAULT;
-    return 0;
-  }
-
-  return -EINVAL;
 }
 
 static struct file_operations fops = {
     .owner = THIS_MODULE,
-    .open = drv_open,
-    .release = drv_release,
-    .read = drv_read,
-    .write = drv_write,
-    .unlocked_ioctl = drv_ioctl,
+    .open = pz4_open,
+    .release = pz4_release,
+    .read = pz4_read,
+    .write = pz4_write,
+    .unlocked_ioctl = pz4_ioctl,
 };
 
-int init_module(void) {
-  // выделяем номер устройства
-  if (alloc_chrdev_region(&dev_num, 0, 1, "pz4") < 0)
-    return -1;
+static int __init pz4_init(void)
+{
+    buffer = kmalloc(BUF_SIZE, GFP_KERNEL);
+    if (!buffer) return -ENOMEM;
 
-  // создаём символьный драйвер
-  cdev_init(&my_cdev, &fops);
-  if (cdev_add(&my_cdev, dev_num, 1) < 0)
-    return -1;
+    if (alloc_chrdev_region(&dev, 0, 1, DEVICE_NAME) < 0) {
+        kfree(buffer);
+        return -1;
+    }
 
-  // создаём класс
-  my_class = class_create("pz4_class");
-  if (IS_ERR(my_class))
-    return -1;
+    cdev_init(&c_dev, &fops);
+    if (cdev_add(&c_dev, dev, 1) < 0) {
+        unregister_chrdev_region(dev, 1);
+        kfree(buffer);
+        return -1;
+    }
 
-  // создаём спецфайл автоматически
-  device_create(my_class, NULL, dev_num, NULL, "pz4_dev");
+    my_class = class_create(THIS_MODULE, "pz4_class");
+    if (IS_ERR(my_class)) {
+        cdev_del(&c_dev);
+        unregister_chrdev_region(dev, 1);
+        kfree(buffer);
+        return PTR_ERR(my_class);
+    }
 
-  pr_info("драйвер загружен, major=%d\n", MAJOR(dev_num));
-  return 0;
+    device_create(my_class, NULL, dev, NULL, DEVICE_NAME);
+
+    mutex_init(&buf_mutex);
+    printk(KERN_INFO "PZ4 driver loaded\n");
+    return 0;
 }
 
-void cleanup_module(void) {
-  device_destroy(my_class, dev_num);
-  class_destroy(my_class);
-
-  cdev_del(&my_cdev);
-  unregister_chrdev_region(dev_num, 1);
-
-  pr_info("драйвер выгружен\n");
+static void __exit pz4_exit(void)
+{
+    device_destroy(my_class, dev);
+    class_destroy(my_class);
+    cdev_del(&c_dev);
+    unregister_chrdev_region(dev, 1);
+    kfree(buffer);
+    printk(KERN_INFO "PZ4 driver removed\n");
 }
+
+module_init(pz4_init);
+module_exit(pz4_exit);
 
 MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Ваше Имя");
+MODULE_DESCRIPTION("PZ4 character device driver");
