@@ -1,6 +1,6 @@
 #include <linux/module.h>
 #include <linux/fs.h>
-#include <linux/uaccess.h> // для copy_to_user / copy_from_user
+#include <linux/uaccess.h>
 #include <linux/cdev.h>
 #include <linux/ioctl.h>
 #include <linux/mutex.h>
@@ -18,19 +18,19 @@ static dev_t dev;
 static struct class *cls;
 static DEFINE_MUTEX(buf_mutex);
 
-static int simple_open(struct inode *inode, struct file *file)
+static int my_open(struct inode *inode, struct file *file)
 {
     printk("Device opened\n");
     return 0;
 }
 
-static int simple_release(struct inode *inode, struct file *file)
+static int my_release(struct inode *inode, struct file *file)
 {
     printk("Device closed\n");
     return 0;
 }
 
-static ssize_t simple_read(struct file *file, char __user *user_buf, size_t len, loff_t *offset)
+static ssize_t my_read(struct file *file, char __user *user_buf, size_t len, loff_t *offset)
 {
     ssize_t ret = 0;
     if (mutex_lock_interruptible(&buf_mutex))
@@ -50,7 +50,7 @@ out:
     return ret;
 }
 
-static ssize_t simple_write(struct file *file, const char __user *user_buf, size_t len, loff_t *offset)
+static ssize_t my_write(struct file *file, const char __user *user_buf, size_t len, loff_t *offset)
 {
     ssize_t ret = 0;
     if (len > BUF_SIZE)
@@ -67,7 +67,7 @@ static ssize_t simple_write(struct file *file, const char __user *user_buf, size
     return ret;
 }
 
-static long simple_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+static long my_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
     int tmp;
     if (mutex_lock_interruptible(&buf_mutex))
@@ -92,11 +92,11 @@ static long simple_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 struct file_operations fops = {
     .owner = THIS_MODULE,
-    .open = simple_open,
-    .release = simple_release,
-    .read = simple_read,
-    .write = simple_write,
-    .unlocked_ioctl = simple_ioctl,
+    .open = my_open,
+    .release = my_release,
+    .read = my_read,
+    .write = my_write,
+    .unlocked_ioctl = my_ioctl,
 };
 
 int init_module(void)
