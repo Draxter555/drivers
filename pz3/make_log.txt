@@ -11,3 +11,7 @@ main                   16384  0
 [ 3555.721662] Module loaded
 [ 7427.262876] Module removed
 [ 7430.202688] Driver loaded, major=237
+
+
+
+crw-r--r--  1 root    root    237,   0 Dec 15 12:33 main
