@@ -25,3 +25,9 @@ insmod: ERROR: could not insert module main.ko: Invalid module format
 [11666.382066] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
 [11866.399260] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
 [11918.476627] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
+
+make: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+scripts/Makefile.build:44: PWD/Makefile: No such file or directory
+make[1]: *** No rule to make target 'PWD/Makefile'.  Stop.
+make: *** [Makefile:1930: PWD] Error 2
+make: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'

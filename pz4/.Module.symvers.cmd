@@ -1,1 +1,0 @@
-cmd_/home/drivers/drivers/pz4/Module.symvers := sed 's/\.ko$$/\.o/' /home/drivers/drivers/pz4/modules.order | scripts/mod/modpost -m -a  -o /home/drivers/drivers/pz4/Module.symvers -e -i Module.symvers   -T -
