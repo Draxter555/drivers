@@ -32,3 +32,12 @@ make[2]: *** [scripts/Makefile.build:297: /home/drivers/drivers/pz3/main.o] Erro
 make[1]: *** [Makefile:1930: /home/drivers/drivers/pz3] Error 2
 make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
 make: *** [Makefile:4: all] Error 2
+make -C /lib/modules/5.15.0-163-generic/build M=/home/drivers/drivers/pz3 modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+  CC [M]  /home/drivers/drivers/pz3/main.o
+  MODPOST /home/drivers/drivers/pz3/Module.symvers
+  CC [M]  /home/drivers/drivers/pz3/main.mod.o
+  LD [M]  /home/drivers/drivers/pz3/main.ko
+  BTF [M] /home/drivers/drivers/pz3/main.ko
+Skipping BTF generation for /home/drivers/drivers/pz3/main.ko due to unavailability of vmlinux
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
