@@ -1,4 +1,4 @@
-obj-m += main.o
+obj-m += driver.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) CFLAGS_MODULE="-fPIC" modules
