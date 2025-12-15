@@ -25,8 +25,10 @@ make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
 ```
 sudo insmod main.ko
 lsmod | grep main
-
 main                   16384  0
+
+dmesg | tail
+[ 7430.202688] Driver loaded, major=237
 ```
 
 # 3. Создать специальный файл устройства
