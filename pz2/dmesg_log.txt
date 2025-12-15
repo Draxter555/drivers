@@ -1,4 +1,3 @@
-               10:17:54.514793 main     Package type: LINUX_64BITS_GENERIC
 [   22.746282] 10:17:54.592172 main     7.1.8 r168469 started. Verbose level = 0
 [   22.771399] 10:17:54.618793 main     vbglR3GuestCtrlDetectPeekGetCancelSupport: Supported (#1)
 [   22.852701] 10:17:54.700103 automount vbsvcAutomounterMountIt: Successfully mounted 'shared' on '/media/sf_shared'
@@ -8,3 +7,24 @@
 [ 2597.099476] Module loaded
 [ 2600.234519] Module removed
 [ 2922.186945] Module loaded
+[ 3102.849632] Module removed
+[   22.746282] 10:17:54.592172 main     7.1.8 r168469 started. Verbose level = 0
+[   22.771399] 10:17:54.618793 main     vbglR3GuestCtrlDetectPeekGetCancelSupport: Supported (#1)
+[   22.852701] 10:17:54.700103 automount vbsvcAutomounterMountIt: Successfully mounted 'shared' on '/media/sf_shared'
+[   75.701364] loop6: detected capacity change from 0 to 8
+[ 1685.354727] Module loaded
+[ 2514.681954] Module removed
+[ 2597.099476] Module loaded
+[ 2600.234519] Module removed
+[ 2922.186945] Module loaded
+[ 3102.849632] Module removed
+[   22.746282] 10:17:54.592172 main     7.1.8 r168469 started. Verbose level = 0
+[   22.771399] 10:17:54.618793 main     vbglR3GuestCtrlDetectPeekGetCancelSupport: Supported (#1)
+[   22.852701] 10:17:54.700103 automount vbsvcAutomounterMountIt: Successfully mounted 'shared' on '/media/sf_shared'
+[   75.701364] loop6: detected capacity change from 0 to 8
+[ 1685.354727] Module loaded
+[ 2514.681954] Module removed
+[ 2597.099476] Module loaded
+[ 2600.234519] Module removed
+[ 2922.186945] Module loaded
+[ 3102.849632] Module removed
