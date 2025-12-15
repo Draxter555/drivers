@@ -127,3 +127,4 @@ module_exit(pz4_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ваше Имя");
 MODULE_DESCRIPTION("PZ4 character device driver");
+MODULE_VERSION("1.0");
