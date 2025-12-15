@@ -4,6 +4,7 @@
 #include <linux/cdev.h>
 #include <linux/ioctl.h>
 #include <linux/mutex.h>
+#include <linux/slab.h> // kmalloc/kfree
 
 #define DEVICE_NAME "pz4_dev"
 #define BUF_SIZE 256
@@ -11,7 +12,7 @@
 #define IOCTL_CLEAR _IO('q', 1)
 #define IOCTL_HASDATA _IOR('q', 2, int)
 
-static char buffer[BUF_SIZE];
+static char *buffer;
 static int buf_len = 0;
 static struct cdev c_dev;
 static dev_t dev;
@@ -79,13 +80,33 @@ static struct file_operations fops = {
 
 static int __init pz4_init(void)
 {
-    if (alloc_chrdev_region(&dev, 0, 1, DEVICE_NAME) < 0) return -1;
+    buffer = kmalloc(BUF_SIZE, GFP_KERNEL);
+    if (!buffer) return -ENOMEM;
+
+    if (alloc_chrdev_region(&dev, 0, 1, DEVICE_NAME) < 0) {
+        kfree(buffer);
+        return -1;
+    }
+
     cdev_init(&c_dev, &fops);
-    if (cdev_add(&c_dev, dev, 1) < 0) return -1;
+    if (cdev_add(&c_dev, dev, 1) < 0) {
+        unregister_chrdev_region(dev, 1);
+        kfree(buffer);
+        return -1;
+    }
+
     cls = class_create(THIS_MODULE, "pz4_class");
+    if (IS_ERR(cls)) {
+        cdev_del(&c_dev);
+        unregister_chrdev_region(dev, 1);
+        kfree(buffer);
+        return PTR_ERR(cls);
+    }
+
     device_create(cls, NULL, dev, NULL, DEVICE_NAME);
+
     mutex_init(&buf_mutex);
-    printk(KERN_INFO "Driver loaded\n");
+    printk(KERN_INFO "PZ4 driver loaded\n");
     return 0;
 }
 
@@ -95,7 +116,8 @@ static void __exit pz4_exit(void)
     class_destroy(cls);
     cdev_del(&c_dev);
     unregister_chrdev_region(dev, 1);
-    printk(KERN_INFO "Driver removed\n");
+    kfree(buffer);
+    printk(KERN_INFO "PZ4 driver removed\n");
 }
 
 module_init(pz4_init);
@@ -103,4 +125,4 @@ module_exit(pz4_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ваше Имя");
-MODULE_DESCRIPTION("Simple char device driver for PZ4");
+MODULE_DESCRIPTION("PZ4 character device driver");
