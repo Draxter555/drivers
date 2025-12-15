@@ -74,3 +74,29 @@ In file included from /home/drivers/drivers/pz4/main.c:2:
 make[1]: *** [scripts/Makefile.build:297: /home/drivers/drivers/pz4/main.o] Error 1
 make: *** [Makefile:1930: /home/drivers/drivers/pz4] Error 2
 make: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
+
+make -C /lib/modules/5.15.0-163-generic/build M= modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+make[2]: *** No rule to make target 'arch/x86/entry/syscalls/syscall_32.tbl', needed by 'arch/x86/include/generated/uapi/asm/unistd_32.h'.  Stop.
+make[1]: *** [arch/x86/Makefile:217: archheaders] Error 2
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
+make: *** [Makefile:4: all] Error 2
+
+make -C /lib/modules/5.15.0-163-generic/build M= modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+make[2]: *** No rule to make target 'arch/x86/entry/syscalls/syscall_32.tbl', needed by 'arch/x86/include/generated/uapi/asm/unistd_32.h'.  Stop.
+make[1]: *** [arch/x86/Makefile:217: archheaders] Error 2
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
+make: *** [Makefile:4: all] Error 2
+
+make -C /lib/modules/5.15.0-163-generic/build M=/home/drivers/drivers/pz4 modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
+
+make -C /lib/modules/5.15.0-163-generic/build M=/home/drivers/drivers/pz4 modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+  CC [M]  /home/drivers/drivers/pz4/main.o
+  MODPOST /home/drivers/drivers/pz4/Module.symvers
+  CC [M]  /home/drivers/drivers/pz4/main.mod.o
+  LD [M]  /home/drivers/drivers/pz4/main.ko
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
