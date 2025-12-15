@@ -40,3 +40,10 @@ make[2]: *** [scripts/Makefile.build:297: /home/drivers/drivers/pz4/main.o] Erro
 make[1]: *** [Makefile:1930: /home/drivers/drivers/pz4] Error 2
 make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
 make: *** [Makefile:4: all] Error 2
+5.15.0-163-generic
+Linux version 5.15.0-163-generic (buildd@lcy02-amd64-091) (gcc (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0, GNU ld (GNU Binutils for Ubuntu) 2.38) #173-Ubuntu SMP Tue Oct 14 17:51:00 UTC 2025
+gcc (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0
+Copyright (C) 2021 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
