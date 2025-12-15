@@ -4,3 +4,24 @@
 insmod: ERROR: could not insert module main.ko: Invalid module format
 
 insmod: ERROR: could not insert module main.ko: Invalid module format
+
+[ 2514.681954] Module removed
+[ 2597.099476] Module loaded
+[ 2600.234519] Module removed
+[ 2922.186945] Module loaded
+[ 3102.849632] Module removed
+[ 3555.721662] Module loaded
+[ 7427.262876] Module removed
+[ 7430.202688] Driver loaded, major=237
+[ 8660.776301] Device opened
+[ 8660.776451] Device closed
+[11070.120248] Driver removed
+[11076.552624] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
+[11135.032791] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
+[11284.184188] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
+[11326.458187] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
+[11400.692712] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
+[11449.932518] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
+[11666.382066] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
+[11866.399260] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
+[11918.476627] module: x86/modules: Skipping invalid relocation target, existing value is nonzero for type 1, loc 000000002cfed0f4, val ffffffffc07e4330
