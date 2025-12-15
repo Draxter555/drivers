@@ -31,3 +31,12 @@ scripts/Makefile.build:44: PWD/Makefile: No such file or directory
 make[1]: *** No rule to make target 'PWD/Makefile'.  Stop.
 make: *** [Makefile:1930: PWD] Error 2
 make: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
+
+make -C /lib/modules/5.15.0-163-generic/build M=/home/drivers/drivers/pz4 CFLAGS_MODULE="-fPIC" modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+  CC [M]  /home/drivers/drivers/pz4/main.o
+cc1: error: code model kernel does not support PIC mode
+make[2]: *** [scripts/Makefile.build:297: /home/drivers/drivers/pz4/main.o] Error 1
+make[1]: *** [Makefile:1930: /home/drivers/drivers/pz4] Error 2
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
+make: *** [Makefile:4: all] Error 2
