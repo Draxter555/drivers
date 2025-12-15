@@ -5,11 +5,11 @@
 #include <linux/ioctl.h>
 #include <linux/mutex.h>
 
-#define DEVICE_NAME "simple_dev"
-#define BUF_SIZE 100
+#define DEVICE_NAME "pz4_dev"
+#define BUF_SIZE 256
 
-#define IOCTL_RESET _IO('q', 1)
-#define IOCTL_IS_EMPTY _IOR('q', 2, int)
+#define IOCTL_CLEAR _IO('q', 1)
+#define IOCTL_HASDATA _IOR('q', 2, int)
 
 static char buffer[BUF_SIZE];
 static int buf_len = 0;
@@ -18,69 +18,44 @@ static dev_t dev;
 static struct class *cls;
 static DEFINE_MUTEX(buf_mutex);
 
-static int my_open(struct inode *inode, struct file *file)
-{
-    printk("Device opened\n");
-    return 0;
-}
+static int pz4_open(struct inode *inode, struct file *file) { return 0; }
+static int pz4_release(struct inode *inode, struct file *file) { return 0; }
 
-static int my_release(struct inode *inode, struct file *file)
-{
-    printk("Device closed\n");
-    return 0;
-}
-
-static ssize_t my_read(struct file *file, char __user *user_buf, size_t len, loff_t *offset)
+static ssize_t pz4_read(struct file *file, char __user *user_buf, size_t len, loff_t *offset)
 {
     ssize_t ret = 0;
-    if (mutex_lock_interruptible(&buf_mutex))
-        return -ERESTARTSYS;
-    if (*offset >= buf_len)
-        goto out;
-    if (len > buf_len - *offset)
-        len = buf_len - *offset;
-    if (copy_to_user(user_buf, buffer + *offset, len))
-        ret = -EFAULT;
-    else {
-        *offset += len;
-        ret = len;
-    }
+    if (mutex_lock_interruptible(&buf_mutex)) return -ERESTARTSYS;
+    if (*offset >= buf_len) goto out;
+    if (len > buf_len - *offset) len = buf_len - *offset;
+    if (copy_to_user(user_buf, buffer + *offset, len)) ret = -EFAULT;
+    else { *offset += len; ret = len; }
 out:
     mutex_unlock(&buf_mutex);
     return ret;
 }
 
-static ssize_t my_write(struct file *file, const char __user *user_buf, size_t len, loff_t *offset)
+static ssize_t pz4_write(struct file *file, const char __user *user_buf, size_t len, loff_t *offset)
 {
     ssize_t ret = 0;
-    if (len > BUF_SIZE)
-        len = BUF_SIZE;
-    if (mutex_lock_interruptible(&buf_mutex))
-        return -ERESTARTSYS;
-    if (copy_from_user(buffer, user_buf, len))
-        ret = -EFAULT;
-    else {
-        buf_len = len;
-        ret = len;
-    }
+    if (len > BUF_SIZE) len = BUF_SIZE;
+    if (mutex_lock_interruptible(&buf_mutex)) return -ERESTARTSYS;
+    if (copy_from_user(buffer, user_buf, len)) ret = -EFAULT;
+    else { buf_len = len; ret = len; }
     mutex_unlock(&buf_mutex);
     return ret;
 }
 
-static long my_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+static long pz4_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
     int tmp;
-    if (mutex_lock_interruptible(&buf_mutex))
-        return -ERESTARTSYS;
+    if (mutex_lock_interruptible(&buf_mutex)) return -ERESTARTSYS;
     switch(cmd) {
-        case IOCTL_RESET:
+        case IOCTL_CLEAR:
             buf_len = 0;
-            printk("Buffer reset\n");
             break;
-        case IOCTL_IS_EMPTY:
-            tmp = (buf_len == 0);
-            if (copy_to_user((int __user *)arg, &tmp, sizeof(int)))
-                return -EFAULT;
+        case IOCTL_HASDATA:
+            tmp = (buf_len != 0);
+            if (copy_to_user((int __user *)arg, &tmp, sizeof(int))) return -EFAULT;
             break;
         default:
             mutex_unlock(&buf_mutex);
@@ -92,21 +67,19 @@ static long my_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 struct file_operations fops = {
     .owner = THIS_MODULE,
-    .open = my_open,
-    .release = my_release,
-    .read = my_read,
-    .write = my_write,
-    .unlocked_ioctl = my_ioctl,
+    .open = pz4_open,
+    .release = pz4_release,
+    .read = pz4_read,
+    .write = pz4_write,
+    .unlocked_ioctl = pz4_ioctl,
 };
 
 int init_module(void)
 {
-    if (alloc_chrdev_region(&dev, 0, 1, DEVICE_NAME) < 0)
-        return -1;
+    if (alloc_chrdev_region(&dev, 0, 1, DEVICE_NAME) < 0) return -1;
     cdev_init(&c_dev, &fops);
-    if (cdev_add(&c_dev, dev, 1) < 0)
-        return -1;
-    cls = class_create(THIS_MODULE, "simple_class");
+    if (cdev_add(&c_dev, dev, 1) < 0) return -1;
+    cls = class_create(THIS_MODULE, "pz4_class");
     device_create(cls, NULL, dev, NULL, DEVICE_NAME);
     mutex_init(&buf_mutex);
     printk("Driver loaded\n");
