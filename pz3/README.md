@@ -39,6 +39,25 @@ crw-r--r--  1 root    root    237,   0 Dec 15 12:33 main
 ```
 
 # 4. Написать приложение для открытия специального файлового устройства
+Приложение
 ```
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
 
+int main() {
+    int fd = open("/dev/main", O_RDWR);
+    if(fd < 0) {
+        perror("open");
+        return 1;
+    }
+    printf("Device opened successfully\n");
+    close(fd);
+    return 0;
+}
+```
+Запуск
+```
+> gcc -o app app.c
+Device opened successfully
 ```
