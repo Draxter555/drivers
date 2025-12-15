@@ -1,0 +1,10 @@
+[   22.667245] 10:17:54.514715 main     OS Release: 5.15.0-163-generic
+[   22.667283] 10:17:54.514754 main     OS Version: #173-Ubuntu SMP Tue Oct 14 17:51:00 UTC 2025
+[   22.667335] 10:17:54.514791 main     Executable: /opt/VBoxGuestAdditions-7.1.8/sbin/VBoxService
+               10:17:54.514792 main     Process ID: 916
+               10:17:54.514793 main     Package type: LINUX_64BITS_GENERIC
+[   22.746282] 10:17:54.592172 main     7.1.8 r168469 started. Verbose level = 0
+[   22.771399] 10:17:54.618793 main     vbglR3GuestCtrlDetectPeekGetCancelSupport: Supported (#1)
+[   22.852701] 10:17:54.700103 automount vbsvcAutomounterMountIt: Successfully mounted 'shared' on '/media/sf_shared'
+[   75.701364] loop6: detected capacity change from 0 to 8
+[ 1685.354727] Module loaded
