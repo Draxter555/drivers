@@ -22,6 +22,13 @@ make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
 ```
 # 2. Вставить в ядро
 
+```
+sudo insmod main.ko
+lsmod | grep main
+
+main                   16384  0
+```
+
 # 3. Создать специальный файл устройства
 
 # 4. Написать приложение для открытия специального файлового устройства
