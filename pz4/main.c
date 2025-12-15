@@ -55,7 +55,10 @@ static long pz4_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
             break;
         case IOCTL_HASDATA:
             tmp = (buf_len != 0);
-            if (copy_to_user((int __user *)arg, &tmp, sizeof(int))) return -EFAULT;
+            if (copy_to_user((int __user *)arg, &tmp, sizeof(int))) {
+                mutex_unlock(&buf_mutex);
+                return -EFAULT;
+            }
             break;
         default:
             mutex_unlock(&buf_mutex);
@@ -65,7 +68,7 @@ static long pz4_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
     return 0;
 }
 
-struct file_operations fops = {
+static struct file_operations fops = {
     .owner = THIS_MODULE,
     .open = pz4_open,
     .release = pz4_release,
@@ -74,7 +77,7 @@ struct file_operations fops = {
     .unlocked_ioctl = pz4_ioctl,
 };
 
-int init_module(void)
+static int __init pz4_init(void)
 {
     if (alloc_chrdev_region(&dev, 0, 1, DEVICE_NAME) < 0) return -1;
     cdev_init(&c_dev, &fops);
@@ -82,17 +85,22 @@ int init_module(void)
     cls = class_create(THIS_MODULE, "pz4_class");
     device_create(cls, NULL, dev, NULL, DEVICE_NAME);
     mutex_init(&buf_mutex);
-    printk("Driver loaded\n");
+    printk(KERN_INFO "Driver loaded\n");
     return 0;
 }
 
-void cleanup_module(void)
+static void __exit pz4_exit(void)
 {
     device_destroy(cls, dev);
     class_destroy(cls);
     cdev_del(&c_dev);
     unregister_chrdev_region(dev, 1);
-    printk("Driver removed\n");
+    printk(KERN_INFO "Driver removed\n");
 }
 
+module_init(pz4_init);
+module_exit(pz4_exit);
+
 MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Ваше Имя");
+MODULE_DESCRIPTION("Simple char device driver for PZ4");
