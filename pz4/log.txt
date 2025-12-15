@@ -33,3 +33,20 @@ make[2]: *** [Makefile:630: syncconfig] Error 2
 make[1]: *** [Makefile:750: include/config/auto.conf.cmd] Error 2
 make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
 make: *** [Makefile:4: all] Error 2
+
+make -C /lib/modules/5.15.0-163-generic/build M= modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+  SYNC    include/config/auto.conf.cmd
+  LEX     scripts/kconfig/lexer.lex.c
+  YACC    scripts/kconfig/parser.tab.[ch]
+  HOSTCC  scripts/kconfig/lexer.lex.o
+  HOSTCC  scripts/kconfig/menu.o
+  HOSTCC  scripts/kconfig/parser.tab.o
+  HOSTCC  scripts/kconfig/preprocess.o
+  HOSTCC  scripts/kconfig/symbol.o
+  HOSTCC  scripts/kconfig/util.o
+  HOSTLD  scripts/kconfig/conf
+make[2]: *** No rule to make target 'arch/x86/entry/syscalls/syscall_32.tbl', needed by 'arch/x86/include/generated/uapi/asm/unistd_32.h'.  Stop.
+make[1]: *** [arch/x86/Makefile:217: archheaders] Error 2
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
+make: *** [Makefile:4: all] Error 2
