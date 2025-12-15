@@ -81,3 +81,26 @@ make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
 make: *** [Makefile:4: all] Error 2
 
 insmod: ERROR: could not insert module driver.ko: Invalid module format
+
+filename:       /home/drivers/drivers/pz4/driver.ko
+description:    PZ4 character device driver
+author:         Ваше Имя
+license:        GPL
+srcversion:     58BD4B05AAE4C794AA8C7A3
+depends:        
+retpoline:      Y
+name:           driver
+vermagic:       5.15.0-163-generic SMP mod_unload modversions 
+
+filename:       /home/drivers/drivers/pz4/driver.ko
+description:    PZ4 character device driver
+author:         Ваше Имя
+license:        GPL
+srcversion:     58BD4B05AAE4C794AA8C7A3
+depends:        
+retpoline:      Y
+name:           driver
+vermagic:       5.15.0-163-generic SMP mod_unload modversions 
+
+
+EFI variables are not supported on this system
