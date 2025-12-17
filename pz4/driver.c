@@ -25,12 +25,14 @@ static int release_f(struct inode *i, struct file *f) { return 0; }
 
 static ssize_t read_f(struct file *f, char __user *u, size_t l, loff_t *off)
 {
+    printk(KERN_INFO "read() ждёт данные\n");
     if (wait_event_interruptible(read_queue, buf_len>0)) return -ERESTARTSYS;
     mutex_lock(&buf_mutex);
     if (l>buf_len) l=buf_len;
     if (copy_to_user(u, buf, l)) l=-EFAULT;
     else buf_len=0;
     mutex_unlock(&buf_mutex);
+    printk(KERN_INFO "данные появились, read() продолжает\n");
     return l;
 }
 
@@ -52,8 +54,10 @@ static long ioctl_f(struct file *f, unsigned int cmd, unsigned long arg)
     if (cmd==IOCTL_CLEAR) buf_len=0;
     else if (cmd==IOCTL_HASDATA){
         tmp=(buf_len!=0);
-        if (copy_to_user((int __user*)arg,&tmp,sizeof(int)))
+        if (copy_to_user((int __user*)arg,&tmp,sizeof(int))) {
+            mutex_unlock(&buf_mutex);
             return -EFAULT;
+        }
     }
     else { mutex_unlock(&buf_mutex); return -EINVAL; }
     mutex_unlock(&buf_mutex);
