@@ -19,6 +19,7 @@
 
 # 2. Реализовать чтение и запись в глобальный буфер
 ## read
+```
 static ssize_t read_f(struct file *f, char __user *u, size_t l, loff_t *off)
 {
     if (wait_event_interruptible(read_queue, buf_len>0)) return -ERESTARTSYS;
@@ -33,7 +34,7 @@ static ssize_t read_f(struct file *f, char __user *u, size_t l, loff_t *off)
 // Ждёт данные, если буфер пуст (wait_event_interruptible)
 // Копирует данные в user-space (copy_to_user)
 // После чтения очищает буфер (buf_len=0)
-
+```
 ## write 
 ```
 static ssize_t write_f(struct file *f, const char __user *u, size_t l, loff_t *off)
@@ -62,6 +63,7 @@ static ssize_t write_f(struct file *f, const char __user *u, size_t l, loff_t *o
 
 
 # 5. Проверка блокирующей операции read()
+
 
 
 
