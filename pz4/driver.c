@@ -52,7 +52,8 @@ static long ioctl_f(struct file *f, unsigned int cmd, unsigned long arg)
     if (cmd==IOCTL_CLEAR) buf_len=0;
     else if (cmd==IOCTL_HASDATA){
         tmp=(buf_len!=0);
-        copy_to_user((int __user*)arg,&tmp,sizeof(int));
+        if (copy_to_user((int __user*)arg,&tmp,sizeof(int)))
+            return -EFAULT;
     }
     else { mutex_unlock(&buf_mutex); return -EINVAL; }
     mutex_unlock(&buf_mutex);
