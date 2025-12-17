@@ -55,7 +55,32 @@ static ssize_t write_f(struct file *f, const char __user *u, size_t l, loff_t *o
 
 
 # 3. Реализовать ioctl для сброса содержимого буффера и получения информации чист ли буфер.
+```
+static long ioctl_f(struct file *f, unsigned int cmd, unsigned long arg)
+{
+    int tmp;
+    mutex_lock(&buf_mutex);
 
+    if (cmd==IOCTL_CLEAR)        // сброс буфера
+        buf_len=0;
+    else if (cmd==IOCTL_HASDATA) // проверка, есть ли данные
+    {
+        tmp=(buf_len!=0);
+        copy_to_user((int __user*)arg,&tmp,sizeof(int));
+    }
+    else {
+        mutex_unlock(&buf_mutex);
+        return -EINVAL;
+    }
+
+    mutex_unlock(&buf_mutex);
+    return 0;
+}
+
+// S
+IOCTL_CLEAR — очищает буфер (buf_len=0)//
+// IOCTL_HASDATA — проверяет, есть ли данные (buf_len!=0) и отдаёт пользователю через copy_to_user
+```
 
 
 # 4. Написать пользовательское приложение для проверки
@@ -63,6 +88,7 @@ static ssize_t write_f(struct file *f, const char __user *u, size_t l, loff_t *o
 
 
 # 5. Проверка блокирующей операции read()
+
 
 
 
