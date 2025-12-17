@@ -18,7 +18,39 @@
 
 
 # 2. Реализовать чтение и запись в глобальный буфер
+## read
+static ssize_t read_f(struct file *f, char __user *u, size_t l, loff_t *off)
+{
+    if (wait_event_interruptible(read_queue, buf_len>0)) return -ERESTARTSYS;
+    mutex_lock(&buf_mutex);
+    if (l>buf_len) l=buf_len;
+    if (copy_to_user(u, buf, l)) l=-EFAULT;
+    else buf_len=0;
+    mutex_unlock(&buf_mutex);
+    return l;
+}
 
+// Ждёт данные, если буфер пуст (wait_event_interruptible)
+// Копирует данные в user-space (copy_to_user)
+// После чтения очищает буфер (buf_len=0)
+
+## write 
+```
+static ssize_t write_f(struct file *f, const char __user *u, size_t l, loff_t *off)
+{
+    if (l>BUF_SIZE) l=BUF_SIZE;
+    mutex_lock(&buf_mutex);
+    if (copy_from_user(buf, u, l)) l=-EFAULT;
+    else buf_len=l;
+    mutex_unlock(&buf_mutex);
+    wake_up_interruptible(&read_queue);
+    return l;
+}
+
+// Копирует данные из user-space (copy_from_user)
+// Обновляет buf_len
+// Пробуждает процессы, ожидающие read() (wake_up_interruptible)
+```
 
 
 # 3. Реализовать ioctl для сброса содержимого буффера и получения информации чист ли буфер.
@@ -30,5 +62,6 @@
 
 
 # 5. Проверка блокирующей операции read()
+
 
 
