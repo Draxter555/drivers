@@ -115,3 +115,17 @@ EFI variables are not supported on this system
 [ 2393.942025] Module removed
 [ 2395.911513] Driver loaded, major=237
 [ 2438.382155] PZ4 driver loaded
+
+make -C /lib/modules/5.15.0-163-generic/build M=/home/drivers/drivers/pz4 modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-163-generic'
+  CC [M]  /home/drivers/drivers/pz4/driver.o
+/home/drivers/drivers/pz4/driver.c: In function ‘ioctl_f’:
+/home/drivers/drivers/pz4/driver.c:55:9: warning: ignoring return value of ‘copy_to_user’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+   55 |         copy_to_user((int __user*)arg,&tmp,sizeof(int));
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  MODPOST /home/drivers/drivers/pz4/Module.symvers
+  CC [M]  /home/drivers/drivers/pz4/driver.mod.o
+  LD [M]  /home/drivers/drivers/pz4/driver.ko
+  BTF [M] /home/drivers/drivers/pz4/driver.ko
+Skipping BTF generation for /home/drivers/drivers/pz4/driver.ko due to unavailability of vmlinux
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-163-generic'
