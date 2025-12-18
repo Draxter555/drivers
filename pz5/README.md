@@ -11,8 +11,3 @@
 [ 3827.111804] lab5_pci_net 0000:00:00.0 enp0s0: renamed from eth0
 [ 3827.119512] lab5_pci_net 0000:00:01.0 enp0s1f0: renamed from eth1
 ```
-
-# 
-
-
-
