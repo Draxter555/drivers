@@ -32,7 +32,6 @@ __used __section("__versions") = {
 	{ 0xebc5f684, "__pci_register_driver" },
 	{ 0x4d7f10c1, "register_netdev" },
 	{ 0x41ed3709, "get_random_bytes" },
-	{ 0x9e2ba6d1, "pci_iomap" },
 	{ 0x237d9da6, "alloc_etherdev_mqs" },
 	{ 0xd0b47b92, "pci_request_regions" },
 	{ 0x524baa1e, "pci_enable_device" },
@@ -51,4 +50,4 @@ MODULE_INFO(depends, "");
 
 MODULE_ALIAS("pci:v*d*sv00000000sd00000000bc*sc*i*");
 
-MODULE_INFO(srcversion, "B312161720056EE01A225F5");
+MODULE_INFO(srcversion, "66D9EEA164E2041E68CB61B");

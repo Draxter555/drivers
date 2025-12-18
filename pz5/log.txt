@@ -8,3 +8,4 @@
 [ 2406.756212] lab5_pci_net: probe of 0000:00:00.0 failed with error -5
 [ 2406.756250] LAB5: PROBE ENTERED
 [ 2406.756322] lab5_pci_net: probe of 0000:00:01.0 failed with error -5
+
