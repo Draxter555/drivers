@@ -9,3 +9,11 @@
 [ 2406.756250] LAB5: PROBE ENTERED
 [ 2406.756322] lab5_pci_net: probe of 0000:00:01.0 failed with error -5
 
+make -C /lib/modules/5.15.0-164-generic/build M=/home/drivers/drivers/pz5 modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-164-generic'
+  CC [M]  /home/drivers/drivers/pz5/main.o
+  MODPOST /home/drivers/drivers/pz5/Module.symvers
+  CC [M]  /home/drivers/drivers/pz5/main.mod.o
+  LD [M]  /home/drivers/drivers/pz5/main.ko
+  BTF [M] /home/drivers/drivers/pz5/main.ko
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-164-generic'
