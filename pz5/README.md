@@ -33,6 +33,7 @@
 > sudo ./app 
 
 RAW HEX: 00 00 00 00 00 00 00 00 00 00 00 00 4e 20 3a f8 1f 26 6f 20 77 6f 72 6c
-ASCII: \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 N   : \xf8 \x1f & o   w o r l
+ASCII: \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 N   : \xf8 \x1f & h e l l o   w o r l d
 ```
+
 
