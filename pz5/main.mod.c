@@ -30,11 +30,15 @@ __used __section("__versions") = {
 	{ 0xd3166ddb, "module_layout" },
 	{ 0xd4dc0aa, "pci_unregister_driver" },
 	{ 0xebc5f684, "__pci_register_driver" },
+	{ 0xdfff5b72, "device_create" },
+	{ 0xecd155b, "__class_create" },
 	{ 0xb3e190f2, "__register_chrdev" },
 	{ 0x41ed3709, "get_random_bytes" },
 	{ 0x6b10bee1, "_copy_to_user" },
 	{ 0x88db9f48, "__check_object_size" },
 	{ 0x6bc3fbc0, "__unregister_chrdev" },
+	{ 0xc4d37928, "class_destroy" },
+	{ 0x633f53bb, "device_destroy" },
 	{ 0x5b8239ca, "__x86_return_thunk" },
 	{ 0x92997ed8, "_printk" },
 	{ 0xbdfb6dbb, "__fentry__" },
@@ -44,4 +48,4 @@ MODULE_INFO(depends, "");
 
 MODULE_ALIAS("pci:v*d*sv00000000sd00000000bc*sc*i*");
 
-MODULE_INFO(srcversion, "C64EED525AB9143BFC39449");
+MODULE_INFO(srcversion, "2AC679163048677A48E6FA1");
