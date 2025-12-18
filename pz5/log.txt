@@ -1,0 +1,10 @@
+[ 2260.813520] LAB5: PROBE ENTERED
+[ 2260.813572] lab5_pci_net: probe of 0000:00:01.0 failed with error -5
+[ 2311.866736] LAB5: PROBE ENTERED
+[ 2311.867224] lab5_pci_net: probe of 0000:00:00.0 failed with error -5
+[ 2311.867656] LAB5: PROBE ENTERED
+[ 2311.868055] lab5_pci_net: probe of 0000:00:01.0 failed with error -5
+[ 2406.756128] LAB5: PROBE ENTERED
+[ 2406.756212] lab5_pci_net: probe of 0000:00:00.0 failed with error -5
+[ 2406.756250] LAB5: PROBE ENTERED
+[ 2406.756322] lab5_pci_net: probe of 0000:00:01.0 failed with error -5
