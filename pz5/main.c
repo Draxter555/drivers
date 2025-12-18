@@ -11,7 +11,6 @@ struct lab5_priv {
     void __iomem *hw_addr;
 };
 
-/* ================= net_device ops ================= */
 
 static int lab5_open(struct net_device *dev)
 {
@@ -39,7 +38,6 @@ static const struct net_device_ops lab5_netdev_ops = {
     .ndo_start_xmit = lab5_xmit,
 };
 
-/* ================= PCI callbacks ================= */
 
 static int lab5_probe(struct pci_dev *pdev,
                       const struct pci_device_id *id)
@@ -115,16 +113,11 @@ static void lab5_remove(struct pci_dev *pdev)
     pci_disable_device(pdev);
 }
 
-/* ================= PCI ID table ================= */
-
-/* специально PCI_ANY_ID — чтобы probe гарантированно вызывался в VM */
 static const struct pci_device_id lab5_ids[] = {
     { PCI_ANY_ID, PCI_ANY_ID },
     { 0, }
 };
 MODULE_DEVICE_TABLE(pci, lab5_ids);
-
-/* ================= driver struct ================= */
 
 static struct pci_driver lab5_driver = {
     .name     = DRV_NAME,
@@ -138,4 +131,5 @@ module_pci_driver(lab5_driver);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("student");
 MODULE_DESCRIPTION("Lab 5 PCI network driver");
+
 
