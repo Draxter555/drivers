@@ -2,72 +2,68 @@
 #include <linux/pci.h>
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
+#include <linux/fs.h>
+#include <linux/uaccess.h>
 
 #define DRV_NAME "lab5_pci_net"
+#define DEV_NAME "rawdemo"
 
-struct lab5_priv {
-    void *hw_addr;  // заглушка, не используем
+static char demo_data[24] = {
+    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+    0x00,0x00,0x00,0x00,0x12,0x34,0x68,0x65,
+    0x6c,0x6c,0x6f,0x20,0x77,0x6f,0x72,0x6c
 };
 
-static int my_open(struct net_device *dev) {
-    printk(KERN_EMERG "LAB5: netdev open\n");
-    netif_start_queue(dev);
+static int dev_open(struct inode *inode, struct file *file) {
+    printk(KERN_EMERG "LAB5: char device opened\n");
     return 0;
 }
 
-static int my_stop(struct net_device *dev) {
-    printk(KERN_EMERG "LAB5: netdev stop\n");
-    netif_stop_queue(dev);
+static int dev_release(struct inode *inode, struct file *file) {
+    printk(KERN_EMERG "LAB5: char device closed\n");
     return 0;
 }
 
-static netdev_tx_t my_xmit(struct sk_buff *skb, struct net_device *dev) {
-    dev_kfree_skb(skb);
-    return NETDEV_TX_OK;
+static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_t *ppos) {
+    if(*ppos >= sizeof(demo_data)) return 0;
+    if(count > sizeof(demo_data) - *ppos)
+        count = sizeof(demo_data) - *ppos;
+    if(copy_to_user(buf, demo_data + *ppos, count))
+        return -EFAULT;
+    *ppos += count;
+    return count;
 }
 
-static const struct net_device_ops my_ops = {
-    .ndo_open = my_open,
-    .ndo_stop = my_stop,
-    .ndo_start_xmit = my_xmit,
+static struct file_operations fops = {
+    .owner = THIS_MODULE,
+    .open = dev_open,
+    .release = dev_release,
+    .read = dev_read,
 };
+
+/* ---------------- PCI part ---------------- */
+
+struct lab5_priv { void *hw_addr; };
 
 static int my_probe(struct pci_dev *pdev, const struct pci_device_id *id) {
-    struct net_device *ndev;
-    struct lab5_priv *priv;
-
     printk(KERN_EMERG "LAB5: probe entered\n");
-
-    ndev = alloc_etherdev(sizeof(struct lab5_priv));
-    priv = netdev_priv(ndev);
-    priv->hw_addr = NULL;
-
-    ndev->netdev_ops = &my_ops;
-    SET_NETDEV_DEV(ndev, &pdev->dev);
-
-    eth_random_addr(ndev->dev_addr);
-    printk(KERN_EMERG "LAB5: MAC %pM\n", ndev->dev_addr);
-
-    pci_set_drvdata(pdev, ndev);
-    register_netdev(ndev);
-
+    eth_random_addr(demo_data + 12); // генерируем часть MAC
+    printk(KERN_EMERG "LAB5: MAC %pM\n", demo_data + 12);
     printk(KERN_EMERG "LAB5: probe success\n");
+
+    /* регистрируем char device */
+    register_chrdev(0, DEV_NAME, &fops);
     return 0;
 }
 
 static void my_remove(struct pci_dev *pdev) {
-    struct net_device *ndev = pci_get_drvdata(pdev);
     printk(KERN_EMERG "LAB5: remove entered\n");
-    if (!ndev) return;
-    unregister_netdev(ndev);
-    free_netdev(ndev);
+    unregister_chrdev(0, DEV_NAME);
 }
 
 static const struct pci_device_id my_ids[] = {
-    { PCI_ANY_ID, PCI_ANY_ID },
-    { 0, }
+    { PCI_ANY_ID, PCI_ANY_ID }, { 0, }
 };
-
 MODULE_DEVICE_TABLE(pci, my_ids);
 
 static struct pci_driver my_driver = {
@@ -81,4 +77,4 @@ module_pci_driver(my_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("student");
-MODULE_DESCRIPTION("Lab5 PCI network driver (simplified)");
+MODULE_DESCRIPTION("Lab5 PCI + char demo driver");
