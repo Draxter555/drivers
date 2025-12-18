@@ -126,9 +126,11 @@ static void lab5_remove(struct pci_dev *pdev)
 }
 
 static const struct pci_device_id lab5_ids[] = {
-    { PCI_DEVICE(VENDOR_ID, DEVICE_ID) },
+    { PCI_ANY_ID, PCI_ANY_ID },
     { 0, }
 };
+
+
 MODULE_DEVICE_TABLE(pci, lab5_ids);
 
 static struct pci_driver lab5_driver = {
@@ -143,3 +145,4 @@ module_pci_driver(lab5_driver);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("student");
 MODULE_DESCRIPTION("Lab5 PCI network driver");
+
