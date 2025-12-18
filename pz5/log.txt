@@ -31,3 +31,26 @@ make[1]: Entering directory '/usr/src/linux-headers-5.15.0-164-generic'
   BTF [M] /home/drivers/drivers/pz5/main.ko
 Skipping BTF generation for /home/drivers/drivers/pz5/main.ko due to unavailability of vmlinux
 make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-164-generic'
+
+[ 3715.807681] RIP: 0033:0x7f14f0c28b5b
+[ 3715.807684] Code: 73 01 c3 48 8b 0d d5 32 0f 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa b8 b0 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d a5 32 0f 00 f7 d8 64 89 01 48
+[ 3715.807685] RSP: 002b:00007ffde197d908 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
+[ 3715.807688] RAX: ffffffffffffffda RBX: 000055a3c780c760 RCX: 00007f14f0c28b5b
+[ 3715.807689] RDX: 000000000000000a RSI: 0000000000000800 RDI: 000055a3c780c7c8
+[ 3715.807691] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+[ 3715.807692] R10: 00007f14f0cc0ac0 R11: 0000000000000206 R12: 00007ffde197db60
+[ 3715.807693] R13: 000055a3c780c2a0 R14: 00007ffde197f8f0 R15: 000055a3c780c760
+[ 3715.807698]  </TASK>
+[ 3715.807699] ---[ end trace bc0de7f8c4eee00b ]---
+
+
+[ 3809.121087] LAB5: remove entered
+[ 3809.128898] LAB5: remove entered
+[ 3827.088633] LAB5: probe entered
+[ 3827.089310] LAB5: MAC 82:2a:c4:1b:89:16
+[ 3827.091759] LAB5: probe success
+[ 3827.094595] LAB5: probe entered
+[ 3827.095090] LAB5: MAC 46:ae:bb:7b:31:96
+[ 3827.095898] LAB5: probe success
+[ 3827.111804] lab5_pci_net 0000:00:00.0 enp0s0: renamed from eth0
+[ 3827.119512] lab5_pci_net 0000:00:01.0 enp0s1f0: renamed from eth1
