@@ -66,12 +66,9 @@ static int lab5_probe(struct pci_dev *pdev,
 
     priv = netdev_priv(ndev);
 
-    priv->hw_addr = pci_iomap(pdev, 0, 0);
-    if (!priv->hw_addr) {
-        err = -EIO;
-        goto err_free;
-    }
-
+    priv->hw_addr = NULL;
+    printk(KERN_EMERG "LAB5: pci_iomap skipped (lab mode)\n");
+    
     ndev->netdev_ops = &lab5_netdev_ops;
     SET_NETDEV_DEV(ndev, &pdev->dev);
 
@@ -141,3 +138,4 @@ module_pci_driver(lab5_driver);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("student");
 MODULE_DESCRIPTION("Lab 5 PCI network driver");
+
