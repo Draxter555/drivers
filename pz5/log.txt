@@ -101,3 +101,5 @@ make[2]: *** [scripts/Makefile.build:297: /home/drivers/drivers/pz5/main.o] Erro
 make[1]: *** [Makefile:1930: /home/drivers/drivers/pz5] Error 2
 make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-164-generic'
 make: *** [Makefile:4: all] Error 2
+
+
