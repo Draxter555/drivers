@@ -14,17 +14,18 @@ static char demo_data[24] = {
     0x6c,0x6c,0x6f,0x20,0x77,0x6f,0x72,0x6c
 };
 
-static int dev_open(struct inode *inode, struct file *file) {
+/* ----------- char device callbacks ----------- */
+static int my_char_open(struct inode *inode, struct file *file) {
     printk(KERN_EMERG "LAB5: char device opened\n");
     return 0;
 }
 
-static int dev_release(struct inode *inode, struct file *file) {
+static int my_char_release(struct inode *inode, struct file *file) {
     printk(KERN_EMERG "LAB5: char device closed\n");
     return 0;
 }
 
-static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_t *ppos) {
+static ssize_t my_char_read(struct file *file, char __user *buf, size_t count, loff_t *ppos) {
     if(*ppos >= sizeof(demo_data)) return 0;
     if(count > sizeof(demo_data) - *ppos)
         count = sizeof(demo_data) - *ppos;
@@ -36,22 +37,21 @@ static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_
 
 static struct file_operations fops = {
     .owner = THIS_MODULE,
-    .open = dev_open,
-    .release = dev_release,
-    .read = dev_read,
+    .open = my_char_open,
+    .release = my_char_release,
+    .read = my_char_read,
 };
 
-/* ---------------- PCI part ---------------- */
-
+/* ----------- PCI driver ----------- */
 struct lab5_priv { void *hw_addr; };
 
 static int my_probe(struct pci_dev *pdev, const struct pci_device_id *id) {
     printk(KERN_EMERG "LAB5: probe entered\n");
+
     eth_random_addr(demo_data + 12); // генерируем часть MAC
     printk(KERN_EMERG "LAB5: MAC %pM\n", demo_data + 12);
     printk(KERN_EMERG "LAB5: probe success\n");
 
-    /* регистрируем char device */
     register_chrdev(0, DEV_NAME, &fops);
     return 0;
 }
@@ -62,7 +62,8 @@ static void my_remove(struct pci_dev *pdev) {
 }
 
 static const struct pci_device_id my_ids[] = {
-    { PCI_ANY_ID, PCI_ANY_ID }, { 0, }
+    { PCI_ANY_ID, PCI_ANY_ID },
+    { 0, }
 };
 MODULE_DEVICE_TABLE(pci, my_ids);
 
