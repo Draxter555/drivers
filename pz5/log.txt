@@ -85,3 +85,19 @@ Check dmesg and ip link
     link/ether 7e:2c:84:03:0d:6d brd ff:ff:ff:ff:ff:ff
 16: enp0s1f0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
     link/ether 56:01:3b:bd:22:b5 brd ff:ff:ff:ff:ff:ff
+
+
+make -C /lib/modules/5.15.0-164-generic/build M=/home/drivers/drivers/pz5 modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-164-generic'
+  CC [M]  /home/drivers/drivers/pz5/main.o
+/home/drivers/drivers/pz5/main.c:17:12: error: conflicting types for ‘dev_open’; have ‘int(struct inode *, struct file *)’
+   17 | static int dev_open(struct inode *inode, struct file *file) {
+      |            ^~~~~~~~
+In file included from /home/drivers/drivers/pz5/main.c:3:
+./include/linux/netdevice.h:2991:5: note: previous declaration of ‘dev_open’ with type ‘int(struct net_device *, struct netlink_ext_ack *)’
+ 2991 | int dev_open(struct net_device *dev, struct netlink_ext_ack *extack);
+      |     ^~~~~~~~
+make[2]: *** [scripts/Makefile.build:297: /home/drivers/drivers/pz5/main.o] Error 1
+make[1]: *** [Makefile:1930: /home/drivers/drivers/pz5] Error 2
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-164-generic'
+make: *** [Makefile:4: all] Error 2
