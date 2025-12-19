@@ -1,0 +1,19 @@
+[   23.738623] 18:53:16.560536 main     OS Release: 5.15.0-164-generic
+[   23.738662] 18:53:16.560580 main     OS Version: #174-Ubuntu SMP Fri Nov 14 20:25:16 UTC 2025
+[   23.738714] 18:53:16.560618 main     Executable: /opt/VBoxGuestAdditions-7.1.8/sbin/VBoxService
+               18:53:16.560619 main     Process ID: 916
+               18:53:16.560620 main     Package type: LINUX_64BITS_GENERIC
+[   23.793686] 18:53:16.615523 main     7.1.8 r168469 started. Verbose level = 0
+[   23.839365] 18:53:16.661218 main     vbglR3GuestCtrlDetectPeekGetCancelSupport: Supported (#1)
+[   23.945113] 18:53:16.766967 automount vbsvcAutomounterMountIt: Successfully mounted 'shared' on '/media/sf_shared'
+[   73.633195] loop6: detected capacity change from 0 to 8
+[ 1546.880183] PCI-драйвер загружен
+
+gcc -o app app.c
+
+gcc -o app app.c
+app.c: In function ‘main’:
+app.c:27:9: warning: implicit declaration of function ‘close’; did you mean ‘pclose’? [-Wimplicit-function-declaration]
+   27 |         close(sock);
+      |         ^~~~~
+      |         pclose
