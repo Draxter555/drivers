@@ -51,3 +51,4 @@ make[1]: Entering directory '/usr/src/linux-headers-5.15.0-164-generic'
   BTF [M] /home/drivers/drivers/lab1/main.ko
 Skipping BTF generation for /home/drivers/drivers/lab1/main.ko due to unavailability of vmlinux
 make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-164-generic'
+
