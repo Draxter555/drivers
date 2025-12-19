@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     }
 
     // Указываем имя интерфейса
-    strcpy(ifr.ifr_name, "my_pci_net");
+    strcpy(ifr.ifr_name, "enp0s3");
 
     // Получаем MAC-адрес
     if (ioctl(sock, SIOCGIFHWADDR, &ifr) < 0) {
