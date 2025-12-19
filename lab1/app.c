@@ -9,7 +9,7 @@
 
 int main()
 {
-    int fd = open("/dev/lab1_dev", O_RDWR);
+    int fd = open("/lab1", O_RDWR);
     if (fd < 0) {
         perror("open");
         return 1;
