@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>        // <-- добавили эту строку
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
-#include <linux/sockios.h>
 
 int main(int argc, char *argv[])
 {
