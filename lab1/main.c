@@ -3,29 +3,32 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <linux/uaccess.h>
-#include <linux/slab.h>
+#include <linux/timekeeping.h>
 
 #include "ioctl.h"
 
-#define DEV_NAME "my_char_dev"
+#define DEV_NAME "lab1_dev"
 
-static int major;
-static struct class *my_class;
-static struct device *my_device;
+static dev_t dev_num;
+static struct cdev cdev;
+static struct class *cls;
+static struct device *dev;
 
-// Буфер и гистограмма (просто счётчик read)
-static int dev_value = 0;
-static int histo_count = 0; // сколько раз читали
+// Буфер и время записи
+static int buffer = 0;
+static s64 write_time_ns = 0; // время в наносекундах
+
+// Гистограмма: 500 бинов по 50 мкс
+static size_t histo[HISTO_MAX] = {0};
+static size_t histo_len = 0; // максимальный использованный бин + 1
 
 static int dev_open(struct inode *inode, struct file *file)
 {
-    printk(KERN_INFO "устройство открыто\n");
     return 0;
 }
 
 static int dev_release(struct inode *inode, struct file *file)
 {
-    printk(KERN_INFO "устройство закрыто\n");
     return 0;
 }
 
@@ -34,11 +37,24 @@ static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_
     if (count != sizeof(int))
         return -EINVAL;
 
-    if (copy_to_user(buf, &dev_value, sizeof(int)))
+    // Считываем текущее время
+    s64 read_time_ns = ktime_get_ns();
+    s64 delta_ns = read_time_ns - write_time_ns;
+    long delta_us = delta_ns / 1000; // нс → мкс
+
+    // Определяем бин: 50 мкс на бин
+    size_t bin = delta_us / 50;
+    if (bin >= HISTO_MAX)
+        bin = HISTO_MAX - 1;
+
+    histo[bin]++;
+    if (bin >= histo_len)
+        histo_len = bin + 1;
+
+    if (copy_to_user(buf, &buffer, sizeof(buffer)))
         return -EFAULT;
 
-    histo_count++; // обновляем "гистограмму"
-    return sizeof(int);
+    return sizeof(buffer);
 }
 
 static ssize_t dev_write(struct file *file, const char __user *buf, size_t count, loff_t *off)
@@ -46,20 +62,30 @@ static ssize_t dev_write(struct file *file, const char __user *buf, size_t count
     if (count != sizeof(int))
         return -EINVAL;
 
-    if (copy_from_user(&dev_value, buf, sizeof(int)))
+    if (copy_from_user(&buffer, buf, sizeof(buffer)))
         return -EFAULT;
 
-    return sizeof(int);
+    write_time_ns = ktime_get_ns(); // запоминаем время записи
+    return sizeof(buffer);
 }
 
 static long dev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
-    if (cmd == IOCTL_HISTO) {
-        if (copy_to_user((int __user *)arg, &histo_count, sizeof(int)))
+    switch (cmd) {
+    case IOCTL_HISTO_LEN:
+        if (copy_to_user((size_t __user *)arg, &histo_len, sizeof(histo_len)))
             return -EFAULT;
-        return 0;
+        break;
+
+    case IOCTL_HISTO_BUF:
+        if (copy_to_user((size_t __user *)arg, histo, sizeof(histo)))
+            return -EFAULT;
+        break;
+
+    default:
+        return -EINVAL;
     }
-    return -EINVAL;
+    return 0;
 }
 
 static const struct file_operations fops = {
@@ -71,41 +97,43 @@ static const struct file_operations fops = {
     .unlocked_ioctl = dev_ioctl,
 };
 
-static int __init my_init(void)
+static int __init lab1_init(void)
 {
-    // Регистрируем устройство
-    major = register_chrdev(0, DEV_NAME, &fops);
-    if (major < 0)
-        return major;
+    if (alloc_chrdev_region(&dev_num, 0, 1, DEV_NAME) < 0)
+        return -1;
 
-    // Создаём class и device для /dev
-    my_class = class_create(THIS_MODULE, "my_class");
-    if (IS_ERR(my_class)) {
-        unregister_chrdev(major, DEV_NAME);
-        return PTR_ERR(my_class);
+    cdev_init(&cdev, &fops);
+    if (cdev_add(&cdev, dev_num, 1) < 0) {
+        unregister_chrdev_region(dev_num, 1);
+        return -1;
     }
 
-    my_device = device_create(my_class, NULL, MKDEV(major, 0), NULL, DEV_NAME);
-    if (IS_ERR(my_device)) {
-        class_destroy(my_class);
-        unregister_chrdev(major, DEV_NAME);
-        return PTR_ERR(my_device);
+    cls = class_create(THIS_MODULE, DEV_NAME);
+    if (IS_ERR(cls)) {
+        cdev_del(&cdev);
+        unregister_chrdev_region(dev_num, 1);
+        return PTR_ERR(cls);
     }
 
-    printk(KERN_INFO "драйвер загружен, /dev/%s\n", DEV_NAME);
+    dev = device_create(cls, NULL, dev_num, NULL, DEV_NAME);
+    if (IS_ERR(dev)) {
+        class_destroy(cls);
+        cdev_del(&cdev);
+        unregister_chrdev_region(dev_num, 1);
+        return PTR_ERR(dev);
+    }
+
     return 0;
 }
 
-static void __exit my_exit(void)
+static void __exit lab1_exit(void)
 {
-    device_destroy(my_class, MKDEV(major, 0));
-    class_destroy(my_class);
-    unregister_chrdev(major, DEV_NAME);
-    printk(KERN_INFO "драйвер выгружен\n");
+    device_destroy(cls, dev_num);
+    class_destroy(cls);
+    cdev_del(&cdev);
+    unregister_chrdev_region(dev_num, 1);
 }
 
-module_init(my_init);
-module_exit(my_exit);
+module_init(lab1_init);
+module_exit(lab1_exit);
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("student");
-MODULE_DESCRIPTION("простой символьный драйвер");
