@@ -1,12 +1,22 @@
-# Загрузка PCI
-
+# Компиляция и запуск драцйвера
 ```
-> make
+> make 
 > sudo insmod main.ko
 > ip link show mynet0
 
 
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 08:00:27:76:c4:55 brd ff:ff:ff:ff:ff:ff
+4: mynet0: <BROADCAST,MULTICAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 00:11:22:33:44:55 brd ff:ff:ff:ff:ff:ff
+```
 
+# Имитация отправки пакета
+```
+> sudo ip link set mynet0 up
+> sudo ping -I mynet0 8.8.8.8
 > sudo dmesg | tail
 
 [ 5689.603212] ура, пакет пришёл! длина: 98 байт
