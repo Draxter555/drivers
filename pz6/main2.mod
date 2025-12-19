@@ -1,2 +1,0 @@
-/home/drivers/drivers/pz6/main2.o
-
