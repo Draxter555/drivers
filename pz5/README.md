@@ -35,6 +35,4 @@
 ```
 > sudo ip link set mynet0 down
 > sudo rmmod main.ko
-
-
 ```
