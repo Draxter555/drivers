@@ -1,11 +1,12 @@
-#ifndef __IOCTL_H
-#define __IOCTL_H
+#pragma once
 
 #include <linux/ioctl.h>
 
-#define HISTO_MAX 500
+// Магическое число для ioctl-команд
+#define MAI_MAGIC_NUM 0x11
 
-#define IOCTL_HISTO_LEN _IOR('k', 0, size_t)
-#define IOCTL_HISTO_BUF _IOR('k', 1, size_t[HISTO_MAX])
+// Получить длину буфера гистограммы
+#define IOCTL_HISTO_LEN _IOR(MAI_MAGIC_NUM, 0, size_t)
 
-#endif
+// Получить данные гистограммы
+#define IOCTL_HISTO_BUF _IOR(MAI_MAGIC_NUM, 1, size_t *)
