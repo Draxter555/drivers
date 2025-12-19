@@ -2,65 +2,90 @@
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 
-#define DRV_NAME "lab5_net"
+// имя интерфейса — можно любое придумать, но чтобы не пересекалось
+#define DEV_NAME "mynet0"
 
-static int lab5_open(struct net_device *dev)
+// мак-адрес — просто захардкодил
+static unsigned char my_mac[ETH_ALEN] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55};
+
+// функция вызывается, когда ядро пытается "отправить" пакет через наш интерфейс
+// на самом деле мы его не отправляем, а просто выводим в лог, что поймали
+static netdev_tx_t my_start_xmit(struct sk_buff *skb, struct net_device *dev)
 {
-    pr_info("lab5: device opened\n");
-    netif_start_queue(dev);
+    printk(KERN_INFO "ура, пакет пришёл! длина: %d байт\n", skb->len);
+    dev_kfree_skb(skb); // освобождаем пакет, чтобы не утекала память
+    return NETDEV_TX_OK; // говорим, что всё ок
+}
+
+// функция при "поднятии" интерфейса (ip link set up)
+static int my_open(struct net_device *dev)
+{
+    printk(KERN_INFO "интерфейс %s подняли\n", dev->name);
+    netif_start_queue(dev); // разрешаем ядру слать пакеты в нас
     return 0;
 }
 
-static int lab5_stop(struct net_device *dev)
+// функция при "опускании" интерфейса (ip link set down)
+static int my_stop(struct net_device *dev)
 {
-    pr_info("lab5: device stopped\n");
-    netif_stop_queue(dev);
+    printk(KERN_INFO "интерфейс %s опустили\n", dev->name);
+    netif_stop_queue(dev); // запрещаем слать пакеты
     return 0;
 }
 
-static netdev_tx_t lab5_xmit(struct sk_buff *skb, struct net_device *dev)
-{
-    pr_info("lab5: packet received, len=%u\n", skb->len);
-    dev_kfree_skb(skb);   // имитация отправки
-    return NETDEV_TX_OK;
-}
-
-static const struct net_device_ops lab5_ops = {
-    .ndo_open       = lab5_open,
-    .ndo_stop       = lab5_stop,
-    .ndo_start_xmit = lab5_xmit,
+// структура с функциями, которые ядро будет вызывать
+static const struct net_device_ops my_netdev_ops = {
+    .ndo_open = my_open,
+    .ndo_stop = my_stop,
+    .ndo_start_xmit = my_start_xmit,
 };
 
-static void lab5_setup(struct net_device *dev)
+// функция настройки интерфейса — вызывается при создании
+static void my_setup(struct net_device *dev)
 {
-    ether_setup(dev);
-    dev->netdev_ops = &lab5_ops;
-    eth_random_addr(dev->dev_addr);
+    ether_setup(dev); // стандартная настройка для ethernet
+    dev->netdev_ops = &my_netdev_ops; // привязываем наши функции
+    memcpy(dev->dev_addr, my_mac, ETH_ALEN); // ставим мак
+    dev->flags |= IFF_NOARP; // говорим, что arp не нужен (это виртуальное устройство)
 }
 
-static struct net_device *lab5_dev;
-
-static int __init lab5_init(void)
+// при загрузке модуля
+static int __init my_init(void)
 {
-    pr_info("lab5: init\n");
+    struct net_device *dev;
 
-    lab5_dev = alloc_netdev(0, "lab5%d", NET_NAME_UNKNOWN, lab5_setup);
-    if (!lab5_dev)
+    // создаём устройство
+    dev = alloc_netdev(0, DEV_NAME, NET_NAME_UNKNOWN, my_setup);
+    if (!dev) {
+        printk(KERN_ERR "не получилось создать устройство\n");
         return -ENOMEM;
+    }
 
-    return register_netdev(lab5_dev);
+    // регистрируем его в системе
+    if (register_netdev(dev)) {
+        printk(KERN_ERR "не получилось зарегистрировать устройство\n");
+        free_netdev(dev);
+        return -ENODEV;
+    }
+
+    printk(KERN_INFO "драйвер загружен, интерфейс: %s\n", dev->name);
+    return 0;
 }
 
-static void __exit lab5_exit(void)
+// при выгрузке модуля
+static void __exit my_exit(void)
 {
-    pr_info("lab5: exit\n");
-    unregister_netdev(lab5_dev);
-    free_netdev(lab5_dev);
+    struct net_device *dev = dev_get_by_name(&init_net, DEV_NAME);
+    if (dev) {
+        unregister_netdev(dev);
+        free_netdev(dev);
+        printk(KERN_INFO "драйвер выгружен\n");
+    }
 }
 
-module_init(lab5_init);
-module_exit(lab5_exit);
+module_init(my_init);
+module_exit(my_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("student");
-MODULE_DESCRIPTION("Lab5 virtual network driver");
+MODULE_DESCRIPTION("простой сетевой драйвер для лабы");
