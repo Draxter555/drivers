@@ -1,0 +1,25 @@
+make -C /lib/modules/5.15.0-164-generic/build M=/home/drivers/drivers/lab1 modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-164-generic'
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-164-generic'
+sudo insmod main.ko
+
+
+записали 0, прочитали 0
+записали 1, прочитали 1
+записали 2, прочитали 2
+записали 3, прочитали 3
+записали 4, прочитали 4
+записали 5, прочитали 5
+записали 6, прочитали 6
+записали 7, прочитали 7
+записали 8, прочитали 8
+записали 9, прочитали 9
+
+Гистограмма (количество вызовов read): 10
+**********
+
+make -C /lib/modules/5.15.0-164-generic/build M=/home/drivers/drivers/lab1 modules
+make[1]: Entering directory '/usr/src/linux-headers-5.15.0-164-generic'
+make[1]: Leaving directory '/usr/src/linux-headers-5.15.0-164-generic'
+
+
