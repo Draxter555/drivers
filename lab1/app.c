@@ -1,60 +1,93 @@
+#include <fcntl.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <sys/ioctl.h>
-#include <time.h>
+#include <unistd.h>
 
 #include "ioctl.h"
 
+// Чтение одного значения из устройства
+static void dev_read_single(const int fd)
+{
+    int value = 0;
+    ssize_t read_len = read(fd, &value, sizeof(value));
+
+    if (read_len < 0) {
+        printf("dev_read_single: read failed: %ld\n", read_len);
+        return;
+    }
+
+    printf("dev_read_single: %d\n", value);
+}
+
+// Запись одного значения в устройство
+static void dev_write_single(const int fd, const int value)
+{
+    ssize_t wrote_len = write(fd, &value, sizeof(value));
+
+    if (wrote_len < 0) {
+        printf("dev_write_single: write failed: %ld\n", wrote_len);
+        return;
+    }
+
+    printf("dev_write_single: %d\n", value);
+}
+
 int main()
 {
-    int fd = open("/dev/lab1_dev", O_RDWR);
-    if (fd < 0) {
-        perror("open");
-        return 1;
+    const char dev_path[] = "/dev/mai_lab1_dev";
+
+    int fd_r = open(dev_path, O_RDONLY);
+    if (fd_r < 0) {
+        printf("Failed to open %s for reading: %d\n", dev_path, fd_r);
+        return fd_r;
     }
 
-    const int N = 1000;
-    for (int i = 0; i < N; i++) {
-        int val = i;
-        write(fd, &val, sizeof(val));
-        read(fd, &val, sizeof(val));
-        // небольшая задержка, чтобы были заметные задержки
-        usleep(100 + (i % 50) * 10); // 100–600 мкс
+    int fd_w = open(dev_path, O_WRONLY);
+    if (fd_w < 0) {
+        printf("Failed to open %s for writing: %d\n", dev_path, fd_w);
+        close(fd_r);
+        return fd_w;
     }
 
-    // Получаем длину гистограммы
-    size_t histo_len;
-    if (ioctl(fd, IOCTL_HISTO_LEN, &histo_len) < 0) {
-        perror("ioctl LEN");
-        close(fd);
-        return 1;
+    // Генерация нагрузки
+    for (size_t i = 0; i < 1000; i++) {
+        dev_write_single(fd_w, i);
+        dev_read_single(fd_r);
     }
 
-    // Получаем буфер
-    size_t *histo = calloc(HISTO_MAX, sizeof(size_t));
-    if (!histo) {
-        perror("calloc");
-        close(fd);
-        return 1;
+    // Получение длины гистограммы
+    size_t histo_len = 0;
+    int ioctl_err = 0;
+
+    if ((ioctl_err = ioctl(fd_r, IOCTL_HISTO_LEN, &histo_len))) {
+        printf("Failed to ioctl IOCTL_HISTO_LEN: %d\n", ioctl_err);
+        return -1;
     }
 
-    if (ioctl(fd, IOCTL_HISTO_BUF, histo) < 0) {
-        perror("ioctl BUF");
-        free(histo);
-        close(fd);
-        return 1;
+    printf("Histogram length: %zu\n", histo_len);
+
+    // Получение данных гистограммы
+    size_t *histo_buf = malloc(histo_len * sizeof(size_t));
+    if (!histo_buf) {
+        printf("Failed to allocate memory for histogram\n");
+        return -1;
     }
 
-    printf("Гистограмма задержек между write и read (бин = 50 мкс):\n");
-    for (size_t i = 0; i < histo_len && i < 20; i++) { // выводим первые 20 бинов
-        if (histo[i] > 0) {
-            printf("[%3zu–%3zu) мкс: %zu\n", i*50, (i+1)*50, histo[i]);
-        }
+    if ((ioctl_err = ioctl(fd_r, IOCTL_HISTO_BUF, histo_buf))) {
+        printf("Failed to ioctl IOCTL_HISTO_BUF: %d\n", ioctl_err);
+        free(histo_buf);
+        return -1;
     }
 
-    free(histo);
-    close(fd);
+    for (size_t i = 0; i < histo_len; i++) {
+        printf("%zu:\t%zu\n", i, histo_buf[i]);
+    }
+
+    free(histo_buf);
+    close(fd_r);
+    close(fd_w);
+
     return 0;
 }
