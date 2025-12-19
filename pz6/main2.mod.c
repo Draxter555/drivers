@@ -31,16 +31,18 @@ __used __section("__versions") = {
 	{ 0xd4dc0aa, "pci_unregister_driver" },
 	{ 0xebc5f684, "__pci_register_driver" },
 	{ 0x4d7f10c1, "register_netdev" },
-	{ 0x651e6bf, "alloc_netdev_mqs" },
-	{ 0xa0440539, "kmem_cache_alloc_trace" },
-	{ 0x2c330630, "kmalloc_caches" },
-	{ 0x45b55ead, "consume_skb" },
-	{ 0xf625b3a7, "ether_setup" },
-	{ 0x37a0cba, "kfree" },
+	{ 0xb19b445, "ioread8" },
+	{ 0x9e2ba6d1, "pci_iomap" },
+	{ 0x237d9da6, "alloc_etherdev_mqs" },
+	{ 0xd0b47b92, "pci_request_regions" },
+	{ 0x524baa1e, "pci_enable_device" },
+	{ 0x9aec4c75, "pci_disable_device" },
+	{ 0x8c5382f0, "pci_release_regions" },
 	{ 0x720aa0d, "free_netdev" },
+	{ 0x7f97adce, "pci_iounmap" },
 	{ 0x54c38114, "unregister_netdev" },
-	{ 0x5b8239ca, "__x86_return_thunk" },
 	{ 0x92997ed8, "_printk" },
+	{ 0x5b8239ca, "__x86_return_thunk" },
 	{ 0xbdfb6dbb, "__fentry__" },
 };
 
@@ -48,4 +50,4 @@ MODULE_INFO(depends, "");
 
 MODULE_ALIAS("pci:v00008086d0000100Esv*sd*bc*sc*i*");
 
-MODULE_INFO(srcversion, "0CABDCDAD897D0FAA28BD00");
+MODULE_INFO(srcversion, "4DB1B965C9B5BC28DAA5E48");
