@@ -17,3 +17,5 @@ app.c:27:9: warning: implicit declaration of function ‘close’; did you mean 
    27 |         close(sock);
       |         ^~~~~
       |         pclose
+
+MAC-адрес интерфейса enp0s3: 08:00:27:76:C4:55
