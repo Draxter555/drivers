@@ -6,11 +6,9 @@
 // Имя сетевого интерфейса
 #define DEV_NAME "my_pci_net"
 
-// Псевдо-MAC адрес — будем "читать" его из "регистров"
+// Псевдо-MAC адрес
 static unsigned char fake_mac[ETH_ALEN] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55};
 
-// PCI ID устройства — можно взять любой, например, Intel PRO/1000
-// Для теста подойдёт любой, даже несуществующий
 #define VENDOR_ID 0x8086   // Intel
 #define DEVICE_ID 0x100E   // e1000 (пример)
 
@@ -20,7 +18,7 @@ struct my_pci_dev {
     void __iomem *mmio_base; // условно — базовый адрес памяти (в реальном драйвере)
 };
 
-// Функция отправки пакета — как в прошлой лабе
+// Функция отправки пакета
 static netdev_tx_t my_start_xmit(struct sk_buff *skb, struct net_device *dev)
 {
     printk(KERN_INFO "пакет пойман! длина: %d\n", skb->len);
@@ -59,7 +57,7 @@ static void my_setup(struct net_device *dev)
     dev->flags |= IFF_NOARP;
 }
 
-// Функция probe — вызывается при обнаружении PCI-устройства
+// Функция probe
 static int my_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
     struct my_pci_dev *priv;
@@ -74,7 +72,7 @@ static int my_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
     if (!priv)
         return -ENOMEM;
 
-    // Создаем сетевое устройство
+    // Создание сетевого устройства
     dev = alloc_netdev(0, DEV_NAME, NET_NAME_UNKNOWN, my_setup);
     if (!dev) {
         kfree(priv);
@@ -106,7 +104,7 @@ static int my_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
     return 0;
 }
 
-// Функция remove — вызывается при удалении устройства
+// Функция remove
 static void my_pci_remove(struct pci_dev *pdev)
 {
     struct my_pci_dev *priv = pci_get_drvdata(pdev);
