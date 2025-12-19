@@ -23,10 +23,6 @@ enp0s3 поднят
 ```
 > ip link
 
-
-
-
-
 > sudo ip link set my_pci_net0 up
 
 
