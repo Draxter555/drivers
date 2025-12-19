@@ -1,1 +1,0 @@
-cmd_/home/drivers/drivers/pz5/main.ko := ld -r -m elf_x86_64 -z noexecstack --build-id=sha1  -T scripts/module.lds -o /home/drivers/drivers/pz5/main.ko /home/drivers/drivers/pz5/main.o /home/drivers/drivers/pz5/main.mod.o;  true
