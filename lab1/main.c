@@ -38,14 +38,15 @@ static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_
     s64 read_time_ns = ktime_get_ns();
     s64 delta_ns = read_time_ns - write_time_ns;
     long delta_us = delta_ns / 1000; // нс → мкс
+
+    // Определяем бин: 50 мкс на бин
+    size_t bin = delta_us / 50;
     
     if (count != sizeof(int))
         return -EINVAL;
 
    
 
-    // Определяем бин: 50 мкс на бин
-    size_t bin = delta_us / 50;
     if (bin >= HISTO_MAX)
         bin = HISTO_MAX - 1;
 
