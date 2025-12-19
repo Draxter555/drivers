@@ -15,7 +15,7 @@ static unsigned char fake_mac[ETH_ALEN] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55};
 // Структура для хранения данных устройства
 struct my_pci_dev {
     struct net_device *netdev;
-    void __iomem *mmio_base; // условно — базовый адрес памяти (в реальном драйвере)
+    void __iomem *mmio_base; // базовый адрес памяти
 };
 
 // Функция отправки пакета
