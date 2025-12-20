@@ -38,9 +38,9 @@ __used __section("__versions") = {
 	{ 0x88afa5a9, "cdev_init" },
 	{ 0xe3ec2f2b, "alloc_chrdev_region" },
 	{ 0x87a21cb3, "__ubsan_handle_out_of_bounds" },
-	{ 0x6b10bee1, "_copy_to_user" },
 	{ 0xb43f9365, "ktime_get" },
 	{ 0x13c49cc2, "_copy_from_user" },
+	{ 0x6b10bee1, "_copy_to_user" },
 	{ 0x5b8239ca, "__x86_return_thunk" },
 	{ 0xbdfb6dbb, "__fentry__" },
 };
@@ -48,4 +48,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "FAF7EE3AB680BF9F6B20F55");
+MODULE_INFO(srcversion, "8878328EA666FDE7768AE3E");
