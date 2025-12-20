@@ -48,15 +48,18 @@ static ssize_t dev_write(struct file *file, const char __user *buf, size_t count
 
 static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_t *off)
 {
+    s64 read_time_ns;
+    s64 delta_ns;
+    long delta_us;
+    size_t bin;
+
     if (count != sizeof(int))
         return -EINVAL;
 
-    s64 read_time_ns = ktime_get_ns();
-    s64 delta_ns = read_time_ns - write_timestamp_ns;
-    long delta_us = delta_ns / 1000;  // нс → мкс
-
-    // Определяем бин: [0,49] → 0, [50,99] → 1, ...
-    size_t bin = (delta_us >= 0) ? (size_t)(delta_us / 50) : 0;
+    read_time_ns = ktime_get_ns();
+    delta_ns = read_time_ns - write_timestamp_ns;
+    delta_us = delta_ns / 1000;
+    bin = (delta_us >= 0) ? (size_t)(delta_us / 50) : 0;
     if (bin >= HISTO_MAX)
         bin = HISTO_MAX - 1;
 
@@ -69,6 +72,8 @@ static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_
 
     return sizeof(int);
 }
+
+
 
 static long dev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
