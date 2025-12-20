@@ -6,7 +6,7 @@
 
 #include "ioctl.h"
 
-// Чтение одного значния из устройства
+// Чтение одного значения из устройства
 static void dev_read_single(const int fd)
 {
     int value = 0;
@@ -50,18 +50,17 @@ int main()
         return fd_w;
     }
 
-    // Генерация нагрузки
+    // Генерация нагрузки: задержка МЕЖДУ write и read!
     for (size_t i = 0; i < 1000; i++) {
         dev_write_single(fd_w, (int)i);
+        usleep(100 + (i % 50) * 10);  // 100–590 мкс между write и read
         dev_read_single(fd_r);
     }
 
     // Получение длины гистограммы
     size_t histo_len = 0;
-    int ioctl_err = 0;
-
-    if ((ioctl_err = ioctl(fd_r, IOCTL_HISTO_LEN, &histo_len))) {
-        printf("Failed to ioctl IOCTL_HISTO_LEN: %d\n", ioctl_err);
+    if (ioctl(fd_r, IOCTL_HISTO_LEN, &histo_len) < 0) {
+        printf("Failed to get histogram length\n");
         close(fd_r);
         close(fd_w);
         return -1;
@@ -69,31 +68,34 @@ int main()
 
     printf("Histogram length: %zu\n", histo_len);
 
-    // Получене днных гистограммы
+    // Получение буфера гистограммы
     size_t *histo_buf = malloc(HISTO_MAX * sizeof(size_t));
     if (!histo_buf) {
-        printf("Failed to allocate memory for histogram\n");
+        printf("malloc failed\n");
         close(fd_r);
         close(fd_w);
         return -1;
     }
 
-    if ((ioctl_err = ioctl(fd_r, IOCTL_HISTO_BUF, histo_buf))) {
-        printf("Failed to ioctl IOCTL_HISTO_BUF: %d\n", ioctl_err);
+    if (ioctl(fd_r, IOCTL_HISTO_BUF, histo_buf) < 0) {
+        printf("Failed to get histogram buffer\n");
         free(histo_buf);
         close(fd_r);
         close(fd_w);
         return -1;
     }
 
-    // Выводимзаполненные бины
-    for (size_t i = 0; i < histo_len && i < 15; i++) {
-    printf("%zu:\t%zu\n", i, histo_buf[i]);
-}
+    // Выводим только первые 20 ненулевых бинов (или меньше)
+    size_t printed = 0;
+    for (size_t i = 0; i < histo_len && printed < 20; i++) {
+        if (histo_buf[i] > 0) {
+            printf("%zu:\t%zu\n", i, histo_buf[i]);
+            printed++;
+        }
+    }
 
     free(histo_buf);
     close(fd_r);
     close(fd_w);
-
     return 0;
 }
