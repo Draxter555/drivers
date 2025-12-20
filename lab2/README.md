@@ -10,3 +10,14 @@ cd buildroot
 git checkout 2022.11
 ```
 
+
+### 2. Сборка
+Предварительно установил:
+```
+sudo apt install libncurses5-dev libncursesw5-dev
+```
+```
+> make menuconfig
+```
+
+<img width="931" height="593" alt="image" src="https://github.com/user-attachments/assets/10213083-078d-4fa6-9fd2-1f7ed836bbc5" />
