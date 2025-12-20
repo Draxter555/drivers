@@ -6,7 +6,7 @@
 
 #include "ioctl.h"
 
-// Чтение одного значения из устройства
+// Чтение одного значния из устройства
 static void dev_read_single(const int fd)
 {
     int value = 0;
