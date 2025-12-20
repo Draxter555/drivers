@@ -69,7 +69,7 @@ int main()
 
     printf("Histogram length: %zu\n", histo_len);
 
-    // Получение данных гистограммы
+    // Получене днных гистограммы
     size_t *histo_buf = malloc(HISTO_MAX * sizeof(size_t));
     if (!histo_buf) {
         printf("Failed to allocate memory for histogram\n");
