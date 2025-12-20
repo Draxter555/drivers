@@ -1,0 +1,13 @@
+mkdir -p /home/drivers/drivers/lab2/buildroot/output/build/buildroot-config/lxdialog
+PKG_CONFIG_PATH="" make CC="/usr/bin/gcc" HOSTCC="/usr/bin/gcc" \
+    obj=/home/drivers/drivers/lab2/buildroot/output/build/buildroot-config -C support/kconfig -f Makefile.br mconf
+ *** Unable to find the ncurses libraries or the
+ *** required header files.
+ *** 'make menuconfig' requires the ncurses libraries.
+ *** 
+ *** Install ncurses (ncurses-devel or libncurses-dev 
+ *** depending on your distribution) and try again.
+ *** 
+make[2]: *** [Makefile:253: /home/drivers/drivers/lab2/buildroot/output/build/buildroot-config/dochecklxdialog] Error 1
+make[1]: *** [Makefile:969: /home/drivers/drivers/lab2/buildroot/output/build/buildroot-config/mconf] Error 2
+make: *** [Makefile:83: _all] Error 2
