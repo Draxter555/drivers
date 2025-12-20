@@ -87,9 +87,9 @@ int main()
     }
 
     // Выводимзаполненные бины
-    for (size_t i = 0; i < histo_len; i++) {
-        printf("%zu:\t%zu\n", i, histo_buf[i]);
-    }
+    for (size_t i = 0; i < histo_len && i < 15; i++) {
+    printf("%zu:\t%zu\n", i, histo_buf[i]);
+}
 
     free(histo_buf);
     close(fd_r);
