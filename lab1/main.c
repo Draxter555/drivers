@@ -1,179 +1,141 @@
+#include <linux/module.h>
+#include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
-#include <linux/fs.h>
-#include <linux/init.h>
-#include <linux/jiffies.h>
-#include <linux/module.h>
-#include <linux/printk.h>
+#include <linux/uaccess.h>
+#include <linux/timekeeping.h>
 
 #include "ioctl.h"
 
-#define DRV_NAME  "mai_lab1_driver"
-#define DEV_NAME  "mai_lab1_dev"
-#define CLS_NAME  "mai_lab1_class"
-#define HISTO_MAX 500
+#define DEV_NAME "lab1_dev"
 
-// Буфер устройства и гистограмма
-static int dev_buffer = 0;
-static bool buf_is_empty = true;
+static dev_t dev_num;
+static struct cdev cdev;
+static struct class *cls;
+static struct device *dev;
 
+static int buffer = 0;
+static s64 write_time_ns = 0;
+
+static size_t histo[HISTO_MAX] = {0};
 static size_t histo_len = 0;
-static size_t histo_buf[HISTO_MAX];
-
-static ulong last_write_time = 0;
-static ulong time_accum = 0;
-
-// Структуры драйвера
-static dev_t dev_no;
-static struct cdev dev_cdev;
-static struct class *dev_class;
-static struct device *dev_device;
-
-// Прототипы
-static int dev_open(struct inode *, struct file *);
-static int dev_release(struct inode *, struct file *);
-static ssize_t dev_read(struct file *, char __user *, size_t, loff_t *);
-static ssize_t dev_write(struct file *, const char __user *, size_t, loff_t *);
-static long dev_ioctl(struct file *, unsigned int, unsigned long);
-
-// Операции устройства
-static const struct file_operations fops = {
-    .open = dev_open,
-    .release = dev_release,
-    .read = dev_read,
-    .write = dev_write,
-    .unlocked_ioctl = dev_ioctl,
-    .owner = THIS_MODULE,
-};
 
 static int dev_open(struct inode *inode, struct file *file)
 {
-    pr_info(DRV_NAME ": device opened\n");
     return 0;
 }
 
 static int dev_release(struct inode *inode, struct file *file)
 {
-    pr_info(DRV_NAME ": device closed\n");
     return 0;
 }
 
-// Чтение значения + обновление гистограммы
-static ssize_t dev_read(struct file *flip, char __user *user_buf,
-                        size_t count, loff_t *offset)
+static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_t *off)
 {
-    if (count != sizeof(dev_buffer))
+    s64 read_time_ns;
+    s64 delta_ns;
+    long delta_us;
+    size_t bin;
+
+    if (count != sizeof(int))
         return -EINVAL;
 
-    if (buf_is_empty)
-        return 0;
+    read_time_ns = ktime_get_ns();
+    delta_ns = read_time_ns - write_time_ns;
+    delta_us = delta_ns / 1000;
+    bin = (size_t)(delta_us / 50);
+    if (bin >= HISTO_MAX)
+        bin = HISTO_MAX - 1;
 
-    if (copy_to_user(user_buf, &dev_buffer, sizeof(dev_buffer)))
+    histo[bin]++;
+    if (bin >= histo_len)
+        histo_len = bin + 1;
+
+    if (copy_to_user(buf, &buffer, sizeof(buffer)))
         return -EFAULT;
 
-    // Обновляем гистограмму
-    histo_buf[histo_len]++;
-
-    ulong delta = jiffies - last_write_time;
-    time_accum += delta;
-
-    if (jiffies_to_usecs(time_accum) >= 50) {
-        time_accum = 0;
-        histo_len++;
-    }
-
-    return sizeof(dev_buffer);
+    return sizeof(buffer);
 }
 
-// Запись одного значения
-static ssize_t dev_write(struct file *flip, const char __user *user_buf,
-                         size_t count, loff_t *offset)
+static ssize_t dev_write(struct file *file, const char __user *buf, size_t count, loff_t *off)
 {
-    if (count != sizeof(dev_buffer))
+    if (count != sizeof(int))
         return -EINVAL;
 
-    if (copy_from_user(&dev_buffer, user_buf, count))
+    if (copy_from_user(&buffer, buf, sizeof(buffer)))
         return -EFAULT;
 
-    buf_is_empty = false;
-    last_write_time = jiffies;
-
-    return count;
+    write_time_ns = ktime_get_ns();
+    return sizeof(buffer);
 }
 
-// Обработка пользовательских ioctl
-static long dev_ioctl(struct file *flip, unsigned int cmd, unsigned long arg)
+static long dev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
     switch (cmd) {
-
     case IOCTL_HISTO_LEN:
-        if (copy_to_user((size_t *)arg, &histo_len, sizeof(histo_len)))
+        if (copy_to_user((size_t __user *)arg, &histo_len, sizeof(histo_len)))
             return -EFAULT;
         break;
 
     case IOCTL_HISTO_BUF:
-        if (copy_to_user((size_t *)arg, histo_buf,
-                         histo_len * sizeof(size_t)))
+        if (copy_to_user((size_t __user *)arg, histo, sizeof(histo)))
             return -EFAULT;
         break;
 
     default:
         return -EINVAL;
     }
+    return 0;
+}
+
+static const struct file_operations fops = {
+    .owner = THIS_MODULE,
+    .open = dev_open,
+    .release = dev_release,
+    .read = dev_read,
+    .write = dev_write,
+    .unlocked_ioctl = dev_ioctl,
+};
+
+static int __init lab1_init(void)
+{
+    if (alloc_chrdev_region(&dev_num, 0, 1, DEV_NAME) < 0)
+        return -1;
+
+    cdev_init(&cdev, &fops);
+    if (cdev_add(&cdev, dev_num, 1) < 0) {
+        unregister_chrdev_region(dev_num, 1);
+        return -1;
+    }
+
+    cls = class_create(THIS_MODULE, DEV_NAME);
+    if (IS_ERR(cls)) {
+        cdev_del(&cdev);
+        unregister_chrdev_region(dev_num, 1);
+        return PTR_ERR(cls);
+    }
+
+    dev = device_create(cls, NULL, dev_num, NULL, DEV_NAME);
+    if (IS_ERR(dev)) {
+        class_destroy(cls);
+        cdev_del(&cdev);
+        unregister_chrdev_region(dev_num, 1);
+        return PTR_ERR(dev);
+    }
 
     return 0;
 }
 
-static int __init drv_init(void)
+static void __exit lab1_exit(void)
 {
-    int res;
-
-    pr_info(DRV_NAME ": initializing\n");
-
-    // Регистрация символьного устройства
-    if ((res = alloc_chrdev_region(&dev_no, 0, 1, DEV_NAME)) < 0)
-        return res;
-
-    cdev_init(&dev_cdev, &fops);
-    dev_cdev.owner = THIS_MODULE;
-
-    if ((res = cdev_add(&dev_cdev, dev_no, 1)) < 0) {
-        unregister_chrdev_region(dev_no, 1);
-        return res;
-    }
-
-    dev_class = class_create(CLS_NAME);
-    if (IS_ERR(dev_class)) {
-        cdev_del(&dev_cdev);
-        unregister_chrdev_region(dev_no, 1);
-        return PTR_ERR(dev_class);
-    }
-
-    dev_device = device_create(dev_class, NULL, dev_no, NULL, DEV_NAME);
-    if (IS_ERR(dev_device)) {
-        class_destroy(dev_class);
-        cdev_del(&dev_cdev);
-        unregister_chrdev_region(dev_no, 1);
-        return PTR_ERR(dev_device);
-    }
-
-    pr_info(DRV_NAME ": initialized successfully\n");
-    return 0;
+    device_destroy(cls, dev_num);
+    class_destroy(cls);
+    cdev_del(&cdev);
+    unregister_chrdev_region(dev_num, 1);
 }
 
-static void __exit drv_exit(void)
-{
-    pr_info(DRV_NAME ": unloading\n");
-
-    device_destroy(dev_class, dev_no);
-    class_destroy(dev_class);
-    cdev_del(&dev_cdev);
-    unregister_chrdev_region(dev_no, 1);
-
-    pr_info(DRV_NAME ": unloaded\n");
-}
-
-module_init(drv_init);
-module_exit(drv_exit);
-
+module_init(lab1_init);
+module_exit(lab1_exit);
 MODULE_LICENSE("GPL");
+MODULE_AUTHOR("student");
+MODULE_DESCRIPTION("Lab 1: char driver with histogram of write-read latency");
