@@ -1,0 +1,3 @@
+mkdir -p /home/drivers/drivers/lab2/buildroot/output/build/buildroot-config/lxdialog
+PKG_CONFIG_PATH="" make CC="/usr/bin/gcc" HOSTCC="/usr/bin/gcc" \
+    obj=/home/drivers/drivers/lab2/buildroot/output/build/buildroot-config -C support/kconfig -f Makefile.br mconf
