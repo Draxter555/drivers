@@ -14,13 +14,10 @@ static struct cdev cdev;
 static struct class *cls;
 static struct device *dev;
 
-// Данные устройства
-static int buffer_value = 0;
-static s64 write_timestamp_ns = 0;  // время окончания write
+static int buffer_val = 0;
+static s64 write_time_ns = 0;
 
-// Гистограмма: 500 бинов по 50 мкс → покрывает до 25 000 мкс
-static size_t histogram[HISTO_MAX] = {0};
-static size_t histo_max_bin = 0;    // длина = макс. использованный бин + 1
+static size_t histo[HISTO_MAX] = {0};
 
 static int dev_open(struct inode *inode, struct file *file)
 {
@@ -36,58 +33,45 @@ static ssize_t dev_write(struct file *file, const char __user *buf, size_t count
 {
     if (count != sizeof(int))
         return -EINVAL;
-
-    if (copy_from_user(&buffer_value, buf, sizeof(int)))
+    if (copy_from_user(&buffer_val, buf, sizeof(int)))
         return -EFAULT;
-
-    // Сохраняем точное время завершения write
-    write_timestamp_ns = ktime_get_ns();
-
+    write_time_ns = ktime_get_ns();
     return sizeof(int);
 }
 
 static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_t *off)
 {
-    s64 read_time_ns;
-    s64 delta_ns;
+    s64 rtime, delta_ns;
     long delta_us;
     size_t bin;
 
     if (count != sizeof(int))
         return -EINVAL;
 
-    read_time_ns = ktime_get_ns();
-    delta_ns = read_time_ns - write_timestamp_ns;
+    rtime = ktime_get_ns();
+    delta_ns = rtime - write_time_ns;
     delta_us = delta_ns / 1000;
     bin = (delta_us >= 0) ? (size_t)(delta_us / 50) : 0;
     if (bin >= HISTO_MAX)
         bin = HISTO_MAX - 1;
 
-    histogram[bin]++;
-    if (bin >= histo_max_bin)
-        histo_max_bin = bin + 1;
+    histo[bin]++;
 
-    if (copy_to_user(buf, &buffer_value, sizeof(int)))
+    if (copy_to_user(buf, &buffer_val, sizeof(int)))
         return -EFAULT;
 
     return sizeof(int);
 }
 
-
-
 static long dev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
     switch (cmd) {
     case IOCTL_HISTO_LEN:
-        if (copy_to_user((size_t __user *)arg, &histo_max_bin, sizeof(histo_max_bin)))
-            return -EFAULT;
-        break;
-
+        return -EINVAL; // НЕ НУЖЕН — мы всегда возвращаем 500
     case IOCTL_HISTO_BUF:
-        if (copy_to_user((size_t __user *)arg, histogram, sizeof(histogram)))
+        if (copy_to_user((size_t __user *)arg, histo, sizeof(histo)))
             return -EFAULT;
         break;
-
     default:
         return -EINVAL;
     }
@@ -143,5 +127,3 @@ static void __exit lab1_exit(void)
 module_init(lab1_init);
 module_exit(lab1_exit);
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("student");
-MODULE_DESCRIPTION("Lab 1: histogram of write-read latency (50 us per bin)");
