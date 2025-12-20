@@ -16,7 +16,6 @@ int main()
     // Пишем и читаем с задержкой МЕЖДУ ними
     for (int i = 0; i < 500; i++) {
         write(fd, &i, sizeof(i));
-        usleep(80 + (i % 10) * 30);  // 80–350 мкс → бины 1–7
         read(fd, &i, sizeof(i));
     }
 
