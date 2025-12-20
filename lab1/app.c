@@ -86,7 +86,7 @@ int main()
         return -1;
     }
 
-    // Выводим только реально заполненные бины (как в образце)
+    // Выводимзаполненные бины
     for (size_t i = 0; i < histo_len; i++) {
         printf("%zu:\t%zu\n", i, histo_buf[i]);
     }
