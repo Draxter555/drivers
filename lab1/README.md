@@ -38,6 +38,28 @@ ioctl(fd, IOCTL_HISTO_BUF, histogram_buffer);
 > make app
 > ./app
 
-
+dev_write_single: 0
+dev_read_single: 0
+/
+/
+/
+dev_write_single: 999
+dev_read_single: 999
+Histogram length: 70
+0:	500
+1:	0
+2:	0
+3:	1
+4:	4
+5:	1
+6:	1
+7:	0
+8:	0
+9:	0
+10:	0
+11:	0
+12:	0
+13:	0
+14:	1
 
 ```
